@@ -1,2 +1,3 @@
-def hello() -> str:
-    return "Hello from userharbor!"
+from .main import UserHarbor
+
+__all__ = ["UserHarbor"]
