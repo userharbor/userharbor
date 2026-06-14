@@ -106,3 +106,11 @@ class UserHarbor:
         if not is_password_strong(new_password):
             raise WeakPasswordError("Weak new password")
         self._store.set_password_hash(username, hash_password(new_password))
+
+    def delete_account(self, username: str, password: str, session_token: str) -> None:
+        if not self.verify_session(username, session_token):
+            raise InvalidSessionTokenError("Invalid session token")
+        if not verify_password(password, self._store.get_password_hash(username)):
+            raise InvalidPasswordError("Invalid password")
+        self._store.remove_all_sessions(username)
+        self._store.delete_user(username)

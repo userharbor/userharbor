@@ -8,6 +8,7 @@ class StoredUser:
     password_hash: str
     email_verification_code_hash: str
     verified: bool = False
+    password_reset_token_hash: str | None = None
     session_token_hashes: list[str] | None = None
 
     def __post_init__(self) -> None:
@@ -20,6 +21,13 @@ class SentVerification:
     username: str
     email: str
     verification_code: str
+
+
+@dataclass
+class SentPasswordReset:
+    username: str
+    email: str
+    reset_token: str
 
 
 @dataclass
@@ -83,10 +91,26 @@ class InMemoryUserStore:
         assert session_token_hashes is not None
         session_token_hashes.clear()
 
+    def get_password_reset_token_hash(self, username: str) -> str:
+        password_reset_token_hash = self.users[username].password_reset_token_hash
+        assert password_reset_token_hash is not None
+        return password_reset_token_hash
+
+    def set_password_reset_token_hash(self, username: str, token_hash: str) -> None:
+        self.users[username].password_reset_token_hash = token_hash
+
+    def is_user_exists(self, username: str, email: str) -> bool:
+        stored_user = self.users.get(username)
+        return stored_user is not None and stored_user.email == email
+
+    def delete_user(self, username: str) -> None:
+        del self.users[username]
+
 
 class RecordingEmailSender:
     def __init__(self) -> None:
         self.sent_verifications: list[SentVerification] = []
+        self.sent_password_resets: list[SentPasswordReset] = []
 
     def send_verification(
         self, username: str, email: str, verification_code: str
@@ -96,5 +120,16 @@ class RecordingEmailSender:
                 username=username,
                 email=email,
                 verification_code=verification_code,
+            )
+        )
+
+    def send_password_reset(
+        self, username: str, email: str, reset_code: str
+    ) -> None:
+        self.sent_password_resets.append(
+            SentPasswordReset(
+                username=username,
+                email=email,
+                reset_token=reset_code,
             )
         )
