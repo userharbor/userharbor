@@ -76,3 +76,14 @@ class UserHarbor:
         if not self.verify_session(username, session_token):
             raise InvalidSessionTokenError("Invalid session token")
         self._store.remove_all_sessions(username)
+
+    def change_password(
+        self, username: str, old_password: str, new_password: str, session_token: str
+    ) -> None:
+        if not self.verify_session(username, session_token):
+            raise InvalidSessionTokenError("Invalid session token")
+        if not verify_password(old_password, self._store.get_password_hash(username)):
+            raise InvalidPasswordError("Invalid old password")
+        if not is_password_strong(new_password):
+            raise WeakPasswordError("Weak new password")
+        self._store.set_password_hash(username, hash_password(new_password))

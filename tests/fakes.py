@@ -60,6 +60,9 @@ class InMemoryUserStore:
     def get_password_hash(self, username: str) -> str:
         return self.users[username].password_hash
 
+    def set_password_hash(self, username: str, password_hash: str) -> None:
+        self.users[username].password_hash = password_hash
+
     def add_session(self, username: str, session_token_hash: str) -> None:
         session_token_hashes = self.users[username].session_token_hashes
         assert session_token_hashes is not None
