@@ -3,6 +3,7 @@ from conftest import (
     VALID_EMAIL,
     VALID_PASSWORD,
     VALID_USERNAME,
+    SECRET_KEY,
 )
 
 from userharbor.exceptions import (
@@ -10,7 +11,7 @@ from userharbor.exceptions import (
     InvalidUsernameError,
     WeakPasswordError,
 )
-from userharbor.security import verify_password, verify_verification_code
+from userharbor.security import verify_password, verify_token
 
 
 def test_register_creates_user_and_sends_verification(
@@ -29,9 +30,10 @@ def test_register_creates_user_and_sends_verification(
 
     assert sent_verification.username == VALID_USERNAME
     assert sent_verification.email == VALID_EMAIL
-    assert verify_verification_code(
+    assert verify_token(
         sent_verification.verification_code,
-        stored_user.verification_code_hash,
+        stored_user.email_verification_code_hash,
+        SECRET_KEY,
     )
 
 
