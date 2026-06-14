@@ -3,7 +3,7 @@ from .exceptions import (
     InvalidPasswordError,
     InvalidSessionTokenError,
     InvalidUsernameError,
-    InvalidVerificationCodeError,
+    InvalidVerificationTokenError,
     UnverifiedUserError,
     WeakPasswordError,
 )
@@ -48,7 +48,7 @@ class UserHarbor:
         if not verify_token(
             verification_code, verification_code_hash, self._secret_key
         ):
-            raise InvalidVerificationCodeError("Invalid verification code")
+            raise InvalidVerificationTokenError("Invalid verification code")
         self._store.set_user_verified(username)
 
     def verify_session(self, username: str, session_token: str) -> bool:
@@ -84,6 +84,25 @@ class UserHarbor:
             raise InvalidSessionTokenError("Invalid session token")
         if not verify_password(old_password, self._store.get_password_hash(username)):
             raise InvalidPasswordError("Invalid old password")
+        if not is_password_strong(new_password):
+            raise WeakPasswordError("Weak new password")
+        self._store.set_password_hash(username, hash_password(new_password))
+
+    def send_password_reset(self, username: str, email: str) -> None:
+        if not self._store.is_user_exists(username, email):
+            raise InvalidUsernameError("Invalid username or email")
+        reset_token = generate_token()
+        self._store.set_password_reset_token_hash(
+            username, hash_token(reset_token, self._secret_key)
+        )
+        self._email_sender.send_password_reset(username, email, reset_token)
+
+    def reset_password(
+        self, username: str, new_password: str, reset_token: str
+    ) -> None:
+        reset_token_hash = self._store.get_password_reset_token_hash(username)
+        if not verify_token(reset_token, reset_token_hash, self._secret_key):
+            raise InvalidVerificationTokenError("Invalid password reset token")
         if not is_password_strong(new_password):
             raise WeakPasswordError("Weak new password")
         self._store.set_password_hash(username, hash_password(new_password))

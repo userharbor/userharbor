@@ -14,7 +14,7 @@ class WeakPasswordError(UserHarborError):
     pass
 
 
-class InvalidVerificationCodeError(UserHarborError):
+class InvalidVerificationTokenError(UserHarborError):
     pass
 
 
@@ -27,4 +27,8 @@ class UnverifiedUserError(UserHarborError):
 
 
 class InvalidSessionTokenError(UserHarborError):
+    pass
+
+
+class InvalidPasswordResetTokenError(UserHarborError):
     pass

@@ -1,6 +1,6 @@
 import pytest
 
-from userharbor.exceptions import InvalidVerificationCodeError
+from userharbor.exceptions import InvalidVerificationTokenError
 
 
 def test_verify_marks_user_verified(userharbor, store, register_user) -> None:
@@ -16,7 +16,9 @@ def test_verify_rejects_invalid_verification_code(
 ) -> None:
     registered_user = register_user()
 
-    with pytest.raises(InvalidVerificationCodeError, match="Invalid verification code"):
+    with pytest.raises(
+        InvalidVerificationTokenError, match="Invalid verification code"
+    ):
         userharbor.verify_email(registered_user.username, "wrong-code")
 
     assert not store.users[registered_user.username].verified
