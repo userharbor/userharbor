@@ -1,36 +1,24 @@
-from typing import Protocol
-
 from .exceptions import (
     InvalidEmailError,
     InvalidUsernameError,
     InvalidVerificationCodeError,
     WeakPasswordError,
 )
+from .interfaces import EmailSender, UserStore
 from .security import (
-    generate_verification_code,
+    generate_token,
     hash_password,
-    hash_verification_code,
-    verify_verification_code,
+    hash_token,
+    verify_token,
 )
 from .validations import is_email_valid, is_password_strong, is_username_valid
 
 
-class UserStore(Protocol):
-    def create_user(
-        self, username: str, email: str, password_hash: str, verification_code_hash: str
-    ) -> None: ...
-    def get_verification_code_hash(self, username: str) -> str: ...
-    def set_user_verified(self, username: str) -> None: ...
-
-
-class EmailSender(Protocol):
-    def send_verification(
-        self, username: str, email: str, verification_code: str
-    ) -> None: ...
-
-
 class UserHarbor:
-    def __init__(self, store: UserStore, email_sender: EmailSender) -> None:
+    def __init__(
+        self, secret_key: str, store: UserStore, email_sender: EmailSender
+    ) -> None:
+        self._secret_key = secret_key
         self._store = store
         self._email_sender = email_sender
 
@@ -42,17 +30,25 @@ class UserHarbor:
         if not is_password_strong(password):
             raise WeakPasswordError("Weak password")
 
-        verification_code = generate_verification_code()
+        verification_code = generate_token()
         self._store.create_user(
             username,
             email,
             hash_password(password),
-            hash_verification_code(verification_code),
+            hash_token(verification_code, self._secret_key),
         )
         self._email_sender.send_verification(username, email, verification_code)
 
     def verify(self, username: str, verification_code: str) -> None:
-        verification_code_hash = self._store.get_verification_code_hash(username)
-        if not verify_verification_code(verification_code, verification_code_hash):
+        verification_code_hash = self._store.get_email_verification_code_hash(username)
+        if not verify_token(
+            verification_code, verification_code_hash, self._secret_key
+        ):
             raise InvalidVerificationCodeError("Invalid verification code")
         self._store.set_user_verified(username)
+
+    #
+    # def login(self, username: str, password: str) -> None:
+    #     password_hash = self._store.get_password_hash(username)
+    #     if not verify_password(password, password_hash):
+    #         raise InvalidPasswordError("Invalid password")
