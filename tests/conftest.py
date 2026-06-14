@@ -4,7 +4,6 @@ import pytest
 
 from userharbor.main import UserHarbor
 
-
 VALID_USERNAME = "janek123"
 VALID_EMAIL = "janek@example.com"
 VALID_PASSWORD = "Strongpass1!"

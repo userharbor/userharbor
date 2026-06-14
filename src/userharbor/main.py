@@ -1,7 +1,10 @@
 from .exceptions import (
     InvalidEmailError,
+    InvalidPasswordError,
+    InvalidSessionTokenError,
     InvalidUsernameError,
     InvalidVerificationCodeError,
+    UnverifiedUserError,
     WeakPasswordError,
 )
 from .interfaces import EmailSender, UserStore
@@ -9,6 +12,7 @@ from .security import (
     generate_token,
     hash_password,
     hash_token,
+    verify_password,
     verify_token,
 )
 from .validations import is_email_valid, is_password_strong, is_username_valid
@@ -47,8 +51,28 @@ class UserHarbor:
             raise InvalidVerificationCodeError("Invalid verification code")
         self._store.set_user_verified(username)
 
-    #
-    # def login(self, username: str, password: str) -> None:
-    #     password_hash = self._store.get_password_hash(username)
-    #     if not verify_password(password, password_hash):
-    #         raise InvalidPasswordError("Invalid password")
+    def login(self, username: str, password: str) -> str:
+        password_hash = self._store.get_password_hash(username)
+        if not verify_password(password, password_hash):
+            raise InvalidPasswordError("Invalid password")
+        if not self._store.is_user_verified(username):
+            raise UnverifiedUserError("User email not verified")
+        session_token = generate_token()
+        self._store.add_session(username, hash_token(session_token, self._secret_key))
+        return session_token
+
+    def verify_session(self, username: str, session_token: str) -> bool:
+        session_token_hash = self._store.get_session_token_hash(username)
+        return verify_token(session_token, session_token_hash, self._secret_key)
+
+    def logout(self, username: str, session_token: str) -> None:
+        if not self.verify_session(username, session_token):
+            raise InvalidSessionTokenError("Invalid session token")
+        self._store.remove_session(
+            username, hash_token(session_token, self._secret_key)
+        )
+
+    def logout_all(self, username: str, session_token: str) -> None:
+        if not self.verify_session(username, session_token):
+            raise InvalidSessionTokenError("Invalid session token")
+        self._store.remove_all_sessions(username)

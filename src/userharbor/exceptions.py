@@ -16,3 +16,15 @@ class WeakPasswordError(UserHarborError):
 
 class InvalidVerificationCodeError(UserHarborError):
     pass
+
+
+class InvalidPasswordError(UserHarborError):
+    pass
+
+
+class UnverifiedUserError(UserHarborError):
+    pass
+
+
+class InvalidSessionTokenError(UserHarborError):
+    pass

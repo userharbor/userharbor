@@ -1,9 +1,9 @@
 import pytest
 from conftest import (
+    SECRET_KEY,
     VALID_EMAIL,
     VALID_PASSWORD,
     VALID_USERNAME,
-    SECRET_KEY,
 )
 
 from userharbor.exceptions import (
