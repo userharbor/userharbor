@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "SpaceShaman", email = "spaceshaman@tuta.io" }]
-dependencies = []
+dependencies = [
+    "pwdlib[argon2]>=0.3.0",
+]
 
 [project.urls]
 Documentation = "https://github.com/userharbor/userharbor"
