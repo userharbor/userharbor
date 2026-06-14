@@ -43,13 +43,17 @@ class UserHarbor:
         )
         self._email_sender.send_verification(username, email, verification_code)
 
-    def verify(self, username: str, verification_code: str) -> None:
+    def verify_email(self, username: str, verification_code: str) -> None:
         verification_code_hash = self._store.get_email_verification_code_hash(username)
         if not verify_token(
             verification_code, verification_code_hash, self._secret_key
         ):
             raise InvalidVerificationCodeError("Invalid verification code")
         self._store.set_user_verified(username)
+
+    def verify_session(self, username: str, session_token: str) -> bool:
+        session_token_hash = self._store.get_session_token_hash(username)
+        return verify_token(session_token, session_token_hash, self._secret_key)
 
     def login(self, username: str, password: str) -> str:
         password_hash = self._store.get_password_hash(username)
@@ -60,10 +64,6 @@ class UserHarbor:
         session_token = generate_token()
         self._store.add_session(username, hash_token(session_token, self._secret_key))
         return session_token
-
-    def verify_session(self, username: str, session_token: str) -> bool:
-        session_token_hash = self._store.get_session_token_hash(username)
-        return verify_token(session_token, session_token_hash, self._secret_key)
 
     def logout(self, username: str, session_token: str) -> None:
         if not self.verify_session(username, session_token):
