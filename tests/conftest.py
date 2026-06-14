@@ -31,6 +31,14 @@ class SentVerification:
     verification_code: str
 
 
+@dataclass
+class RegisteredUser:
+    username: str
+    email: str
+    password: str
+    verification_code: str
+
+
 class InMemoryUserStore:
     def __init__(self) -> None:
         self.users: dict[str, StoredUser] = {}
@@ -113,3 +121,34 @@ def userharbor(
     store: InMemoryUserStore, email_sender: RecordingEmailSender
 ) -> UserHarbor:
     return UserHarbor(SECRET_KEY, store, email_sender)
+
+
+@pytest.fixture
+def register_user(userharbor: UserHarbor, email_sender: RecordingEmailSender):
+    def _register_user(
+        username: str = VALID_USERNAME,
+        email: str = VALID_EMAIL,
+        password: str = VALID_PASSWORD,
+    ) -> RegisteredUser:
+        userharbor.register(username, email, password)
+        return RegisteredUser(
+            username=username,
+            email=email,
+            password=password,
+            verification_code=email_sender.sent_verifications[-1].verification_code,
+        )
+
+    return _register_user
+
+
+@pytest.fixture
+def verified_user(userharbor: UserHarbor, register_user):
+    registered_user = register_user()
+    userharbor.verify_email(registered_user.username, registered_user.verification_code)
+    return registered_user
+
+
+@pytest.fixture
+def logged_in_user(userharbor: UserHarbor, verified_user: RegisteredUser):
+    session_token = userharbor.login(verified_user.username, verified_user.password)
+    return verified_user, session_token
