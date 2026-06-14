@@ -7,13 +7,18 @@ requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "SpaceShaman", email = "spaceshaman@tuta.io" }]
 dependencies = [
-    "pwdlib[argon2]>=0.3.0",
+  "pwdlib[argon2]>=0.3.0",
 ]
 
 [project.urls]
 Documentation = "https://github.com/userharbor/userharbor"
 Homepage = "https://github.com/userharbor/userharbor"
 Repository = "https://github.com/userharbor/userharbor"
+
+[dependency-groups]
+dev = [
+  "pytest>=9.1.0",
+]
 
 [build-system]
 requires = ["uv_build>=0.11.14,<0.12.0"]
