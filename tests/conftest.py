@@ -17,6 +17,11 @@ class StoredUser:
     password_hash: str
     email_verification_code_hash: str
     verified: bool = False
+    session_token_hashes: list[str] | None = None
+
+    def __post_init__(self) -> None:
+        if self.session_token_hashes is None:
+            self.session_token_hashes = []
 
 
 @dataclass
@@ -57,16 +62,24 @@ class InMemoryUserStore:
         return self.users[username].password_hash
 
     def add_session(self, username: str, session_token_hash: str) -> None:
-        raise NotImplementedError
+        session_token_hashes = self.users[username].session_token_hashes
+        assert session_token_hashes is not None
+        session_token_hashes.append(session_token_hash)
 
     def get_session_token_hash(self, username: str) -> str:
-        raise NotImplementedError
+        session_token_hashes = self.users[username].session_token_hashes
+        assert session_token_hashes is not None
+        return session_token_hashes[-1]
 
     def remove_session(self, username: str, session_token_hash: str) -> None:
-        raise NotImplementedError
+        session_token_hashes = self.users[username].session_token_hashes
+        assert session_token_hashes is not None
+        session_token_hashes.remove(session_token_hash)
 
     def remove_all_sessions(self, username: str) -> None:
-        raise NotImplementedError
+        session_token_hashes = self.users[username].session_token_hashes
+        assert session_token_hashes is not None
+        session_token_hashes.clear()
 
 
 class RecordingEmailSender:
