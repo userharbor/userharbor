@@ -12,3 +12,7 @@ class InvalidEmailError(UserHarborError):
 
 class WeakPasswordError(UserHarborError):
     pass
+
+
+class InvalidVerificationCodeError(UserHarborError):
+    pass
