@@ -10,15 +10,26 @@ class Session:
     expires_at: datetime
 
 
+@dataclass
+class EmailVerification:
+    username: str
+    verification_code_hash: str
+    expires_at: datetime
+
+
+@dataclass
+class CreateUserRequest:
+    username: str
+    email: str
+    password: str
+    verification_code_hash: str
+    expires_at: datetime
+
+
 class UserStore(Protocol):
-    def create_user(
-        self,
-        username: str,
-        email: str,
-        password_hash: str,
-        email_verification_code_hash: str,
-    ) -> None: ...
-    def get_email_verification_code_hash(self, username: str) -> str: ...
+    def create_user(self, user: CreateUserRequest) -> None: ...
+    def get_email_verification(self, token_hask: str) -> EmailVerification | None: ...
+    def remove_email_verification(self, token_hash: str) -> None: ...
     def set_user_verified(self, username: str) -> None: ...
     def is_user_verified(self, username: str) -> bool: ...
     def get_password_hash(self, username: str) -> str: ...

@@ -35,6 +35,12 @@ def test_register_creates_user_and_sends_verification(
         stored_user.email_verification_code_hash,
         SECRET_KEY,
     )
+    assert (
+        store.email_verifications[
+            stored_user.email_verification_code_hash
+        ].username
+        == VALID_USERNAME
+    )
 
 
 @pytest.mark.parametrize(

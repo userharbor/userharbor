@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from userharbor.interfaces import Session
+from userharbor.interfaces import CreateUserRequest, EmailVerification, Session
 
 
 @dataclass
@@ -44,24 +44,29 @@ class RegisteredUser:
 class InMemoryUserStore:
     def __init__(self) -> None:
         self.users: dict[str, StoredUser] = {}
+        self.email_verifications: dict[str, EmailVerification] = {}
         self.sessions: dict[str, Session] = {}
 
-    def create_user(
-        self,
-        username: str,
-        email: str,
-        password_hash: str,
-        email_verification_code_hash: str,
-    ) -> None:
-        self.users[username] = StoredUser(
-            username=username,
-            email=email,
-            password_hash=password_hash,
-            email_verification_code_hash=email_verification_code_hash,
+    def create_user(self, user: CreateUserRequest) -> None:
+        self.users[user.username] = StoredUser(
+            username=user.username,
+            email=user.email,
+            password_hash=user.password,
+            email_verification_code_hash=user.verification_code_hash,
+        )
+        self.email_verifications[user.verification_code_hash] = EmailVerification(
+            username=user.username,
+            verification_code_hash=user.verification_code_hash,
+            expires_at=user.expires_at,
         )
 
-    def get_email_verification_code_hash(self, username: str) -> str:
-        return self.users[username].email_verification_code_hash
+    def get_email_verification(
+        self, verification_code_hash: str
+    ) -> EmailVerification | None:
+        return self.email_verifications.get(verification_code_hash)
+
+    def remove_email_verification(self, verification_code_hash: str) -> None:
+        del self.email_verifications[verification_code_hash]
 
     def set_user_verified(self, username: str) -> None:
         self.users[username].verified = True

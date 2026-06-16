@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .exceptions import (
     InvalidEmailError,
@@ -9,7 +9,7 @@ from .exceptions import (
     UnverifiedUserError,
     WeakPasswordError,
 )
-from .interfaces import EmailSender, UserStore
+from .interfaces import CreateUserRequest, EmailSender, UserStore
 from .security import (
     generate_token,
     hash_password,
@@ -38,20 +38,27 @@ class UserHarbor:
 
         verification_code = generate_token()
         self._store.create_user(
-            username,
-            email,
-            hash_password(password),
-            hash_token(verification_code, self._secret_key),
+            CreateUserRequest(
+                username=username,
+                email=email,
+                password=hash_password(password),
+                verification_code_hash=hash_token(verification_code, self._secret_key),
+                expires_at=datetime.now() + timedelta(hours=24),
+            )
         )
         self._email_sender.send_verification(username, email, verification_code)
 
-    def verify_email(self, username: str, verification_code: str) -> None:
-        verification_code_hash = self._store.get_email_verification_code_hash(username)
-        if not verify_token(
-            verification_code, verification_code_hash, self._secret_key
-        ):
-            raise InvalidVerificationTokenError("Invalid verification code")
-        self._store.set_user_verified(username)
+    def verify_email(self, verification_code: str) -> None:
+        verification = self._store.get_email_verification(
+            hash_token(verification_code, self._secret_key)
+        )
+        if not verification:
+            raise InvalidVerificationTokenError("Invalid verification token")
+        if datetime.now() > verification.expires_at:
+            self._store.remove_email_verification(verification.verification_code_hash)
+            raise InvalidVerificationTokenError("Verification token expired")
+        self._store.remove_email_verification(verification.verification_code_hash)
+        self._store.set_user_verified(verification.username)
 
     def verify_session(self, session_token: str) -> bool:
         session = self._store.get_session(hash_token(session_token, self._secret_key))
