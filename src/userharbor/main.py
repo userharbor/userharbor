@@ -10,7 +10,7 @@ from .exceptions import (
     UserAlreadyVerifiedError,
     WeakPasswordError,
 )
-from .interfaces import CreateUserRequest, EmailSender, EmailVerification, UserStore
+from .interfaces import CreateUserRequest, EmailSender, UserStore, UserToken
 from .security import (
     generate_token,
     hash_password,
@@ -58,9 +58,9 @@ class UserHarbor:
         if not verification:
             raise InvalidVerificationTokenError("Invalid verification token")
         if datetime.now() > verification.expires_at:
-            self._store.remove_email_verification(verification.verification_token_hash)
+            self._store.remove_email_verification(verification.token_hash)
             raise InvalidVerificationTokenError("Verification token expired")
-        self._store.remove_email_verification(verification.verification_token_hash)
+        self._store.remove_email_verification(verification.token_hash)
         self._store.set_user_verified(verification.username)
 
     def resend_verification(self, username: str, email: str) -> None:
@@ -70,11 +70,9 @@ class UserHarbor:
             raise UserAlreadyVerifiedError("User already verified")
         verification_token = generate_token()
         self._store.set_email_verification(
-            EmailVerification(
+            UserToken(
                 username=username,
-                verification_token_hash=hash_token(
-                    verification_token, self._secret_key
-                ),
+                token_hash=hash_token(verification_token, self._secret_key),
                 expires_at=datetime.now() + timedelta(hours=24),
             )
         )
@@ -96,7 +94,13 @@ class UserHarbor:
         if not self._store.is_user_verified(username):
             raise UnverifiedUserError("User email not verified")
         session_token = generate_token()
-        self._store.add_session(username, hash_token(session_token, self._secret_key))
+        self._store.add_session(
+            UserToken(
+                username=username,
+                token_hash=hash_token(session_token, self._secret_key),
+                expires_at=datetime.now() + timedelta(days=30),
+            )
+        )
         return session_token
 
     def logout(self, session_token: str) -> None:
@@ -138,6 +142,8 @@ class UserHarbor:
         if not is_password_strong(new_password):
             raise WeakPasswordError("Weak new password")
         self._store.set_password_hash(username, hash_password(new_password))
+        self._store.remove_all_sessions(username)
+        self._store.remove_password_reset_token_hash(username)
 
     def delete_account(self, username: str, password: str, session_token: str) -> None:
         if not self.verify_session(session_token):
