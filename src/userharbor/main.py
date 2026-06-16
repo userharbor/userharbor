@@ -72,7 +72,7 @@ class UserHarbor:
         self._store.add_session(username, hash_token(session_token, self._secret_key))
         return session_token
 
-    def logout(self, username: str, session_token: str) -> None:
+    def logout(self, session_token: str) -> None:
         if not self.verify_session(session_token):
             raise InvalidSessionTokenError("Invalid session token")
         self._store.remove_session(hash_token(session_token, self._secret_key))
