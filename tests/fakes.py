@@ -59,6 +59,9 @@ class InMemoryUserStore:
             expires_at=user.expires_at,
         )
 
+    def get_username(self, token_hash: str) -> str:
+        return self.sessions[token_hash].username
+
     def get_email_verification(
         self, verification_token_hash: str
     ) -> UserToken | None:

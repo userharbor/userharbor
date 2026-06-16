@@ -22,7 +22,6 @@ def test_change_password_updates_password_hash(
     )
 
     userharbor.change_password(
-        registered_user.username,
         registered_user.password,
         NEW_PASSWORD,
         session_token,
@@ -37,6 +36,36 @@ def test_change_password_updates_password_hash(
     assert not userharbor.verify_session(other_session_token)
 
 
+def test_change_password_updates_session_owner_password(
+    userharbor, store, logged_in_user, register_user
+) -> None:
+    first_user, _ = logged_in_user
+    second_user = register_user(
+        username="kasia123",
+        email="kasia@example.com",
+    )
+    userharbor.verify_email(second_user.verification_token)
+    second_session_token = userharbor.login(
+        second_user.username,
+        second_user.password,
+    )
+
+    userharbor.change_password(
+        second_user.password,
+        NEW_PASSWORD,
+        second_session_token,
+    )
+
+    assert verify_password(
+        first_user.password,
+        store.users[first_user.username].password_hash,
+    )
+    assert verify_password(
+        NEW_PASSWORD,
+        store.users[second_user.username].password_hash,
+    )
+
+
 def test_change_password_rejects_invalid_session_token(
     userharbor, store, logged_in_user
 ) -> None:
@@ -48,7 +77,6 @@ def test_change_password_rejects_invalid_session_token(
 
     with pytest.raises(InvalidSessionTokenError, match="Invalid session token"):
         userharbor.change_password(
-            registered_user.username,
             registered_user.password,
             NEW_PASSWORD,
             "wrong-session-token",
@@ -69,7 +97,6 @@ def test_change_password_rejects_invalid_old_password(
 
     with pytest.raises(InvalidPasswordError, match="Invalid old password"):
         userharbor.change_password(
-            registered_user.username,
             "Wrongpass1!",
             NEW_PASSWORD,
             session_token,
@@ -90,7 +117,6 @@ def test_change_password_rejects_weak_new_password(
 
     with pytest.raises(WeakPasswordError, match="Weak new password"):
         userharbor.change_password(
-            registered_user.username,
             VALID_PASSWORD,
             "weak",
             session_token,
