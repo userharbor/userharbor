@@ -45,6 +45,7 @@ class InMemoryUserStore:
         self.users: dict[str, StoredUser] = {}
         self.email_verifications: dict[str, UserToken] = {}
         self.sessions: dict[str, UserToken] = {}
+        self.password_resets: dict[str, UserToken] = {}
 
     def create_user(self, user: CreateUserRequest) -> None:
         self.users[user.username] = StoredUser(
@@ -114,16 +115,19 @@ class InMemoryUserStore:
             del self.sessions[session_token_hash]
         session_token_hashes.clear()
 
-    def get_password_reset_token_hash(self, username: str) -> str:
-        password_reset_token_hash = self.users[username].password_reset_token_hash
-        assert password_reset_token_hash is not None
-        return password_reset_token_hash
+    def get_password_reset(self, token_hash: str) -> UserToken | None:
+        return self.password_resets.get(token_hash)
 
-    def set_password_reset_token_hash(self, username: str, token_hash: str) -> None:
-        self.users[username].password_reset_token_hash = token_hash
+    def set_password_reset(self, reset: UserToken) -> None:
+        old_token_hash = self.users[reset.username].password_reset_token_hash
+        if old_token_hash is not None:
+            self.password_resets.pop(old_token_hash, None)
+        self.users[reset.username].password_reset_token_hash = reset.token_hash
+        self.password_resets[reset.token_hash] = reset
 
-    def remove_password_reset_token_hash(self, username: str) -> None:
-        self.users[username].password_reset_token_hash = None
+    def remove_password_reset(self, token_hash: str) -> None:
+        reset = self.password_resets.pop(token_hash)
+        self.users[reset.username].password_reset_token_hash = None
 
     def is_user_exists(self, username: str, email: str) -> bool:
         stored_user = self.users.get(username)
