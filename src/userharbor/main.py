@@ -42,7 +42,7 @@ class UserHarbor:
             CreateUserRequest(
                 username=username,
                 email=email,
-                password=hash_password(password),
+                password_hash=hash_password(password),
                 verification_token_hash=hash_token(
                     verification_token, self._secret_key
                 ),

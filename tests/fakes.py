@@ -51,7 +51,7 @@ class InMemoryUserStore:
         self.users[user.username] = StoredUser(
             username=user.username,
             email=user.email,
-            password_hash=user.password,
+            password_hash=user.password_hash,
             email_verification_token_hash=user.verification_token_hash,
         )
         self.email_verifications[user.verification_token_hash] = UserToken(

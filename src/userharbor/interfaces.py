@@ -14,7 +14,7 @@ class UserToken:
 class CreateUserRequest:
     username: str
     email: str
-    password: str
+    password_hash: str
     verification_token_hash: str
     expires_at: datetime
 
