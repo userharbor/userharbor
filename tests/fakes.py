@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from datetime import datetime, timedelta
+
+from userharbor.interfaces import Session
 
 
 @dataclass
@@ -41,6 +44,7 @@ class RegisteredUser:
 class InMemoryUserStore:
     def __init__(self) -> None:
         self.users: dict[str, StoredUser] = {}
+        self.sessions: dict[str, Session] = {}
 
     def create_user(
         self,
@@ -75,20 +79,26 @@ class InMemoryUserStore:
         session_token_hashes = self.users[username].session_token_hashes
         assert session_token_hashes is not None
         session_token_hashes.append(session_token_hash)
+        self.sessions[session_token_hash] = Session(
+            username=username,
+            token_hash=session_token_hash,
+            expires_at=datetime.now() + timedelta(days=30),
+        )
 
-    def get_session_token_hash(self, username: str) -> str:
-        session_token_hashes = self.users[username].session_token_hashes
-        assert session_token_hashes is not None
-        return session_token_hashes[-1]
+    def get_session(self, token_hash: str) -> Session | None:
+        return self.sessions.get(token_hash)
 
-    def remove_session(self, username: str, session_token_hash: str) -> None:
-        session_token_hashes = self.users[username].session_token_hashes
+    def remove_session(self, session_token_hash: str) -> None:
+        session = self.sessions.pop(session_token_hash)
+        session_token_hashes = self.users[session.username].session_token_hashes
         assert session_token_hashes is not None
         session_token_hashes.remove(session_token_hash)
 
     def remove_all_sessions(self, username: str) -> None:
         session_token_hashes = self.users[username].session_token_hashes
         assert session_token_hashes is not None
+        for session_token_hash in session_token_hashes:
+            del self.sessions[session_token_hash]
         session_token_hashes.clear()
 
     def get_password_reset_token_hash(self, username: str) -> str:
