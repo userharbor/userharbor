@@ -123,6 +123,7 @@ class UserHarbor:
         if not is_password_strong(new_password):
             raise WeakPasswordError("Weak new password")
         self._store.set_password_hash(username, hash_password(new_password))
+        self._store.remove_all_sessions(username)
 
     def send_password_reset(self, username: str, email: str) -> None:
         if not self._store.is_user_exists(username, email):
