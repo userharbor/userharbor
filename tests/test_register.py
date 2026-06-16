@@ -31,13 +31,13 @@ def test_register_creates_user_and_sends_verification(
     assert sent_verification.username == VALID_USERNAME
     assert sent_verification.email == VALID_EMAIL
     assert verify_token(
-        sent_verification.verification_code,
-        stored_user.email_verification_code_hash,
+        sent_verification.verification_token,
+        stored_user.email_verification_token_hash,
         SECRET_KEY,
     )
     assert (
         store.email_verifications[
-            stored_user.email_verification_code_hash
+            stored_user.email_verification_token_hash
         ].username
         == VALID_USERNAME
     )

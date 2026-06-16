@@ -38,7 +38,7 @@ def register_user(userharbor: UserHarbor, email_sender: RecordingEmailSender):
             username=username,
             email=email,
             password=password,
-            verification_code=email_sender.sent_verifications[-1].verification_code,
+            verification_token=email_sender.sent_verifications[-1].verification_token,
         )
 
     return _register_user
@@ -47,7 +47,7 @@ def register_user(userharbor: UserHarbor, email_sender: RecordingEmailSender):
 @pytest.fixture
 def verified_user(userharbor: UserHarbor, register_user):
     registered_user = register_user()
-    userharbor.verify_email(registered_user.verification_code)
+    userharbor.verify_email(registered_user.verification_token)
     return registered_user
 
 

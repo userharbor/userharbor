@@ -9,29 +9,29 @@ def test_resend_verification_replaces_token_hash_and_sends_email(
     userharbor, store, email_sender, register_user
 ) -> None:
     registered_user = register_user()
-    old_verification_code_hash = store.users[
+    old_verification_token_hash = store.users[
         registered_user.username
-    ].email_verification_code_hash
+    ].email_verification_token_hash
 
     userharbor.resend_verification(registered_user.username, registered_user.email)
 
     sent_verification = email_sender.sent_verifications[-1]
-    new_verification_code_hash = store.users[
+    new_verification_token_hash = store.users[
         registered_user.username
-    ].email_verification_code_hash
+    ].email_verification_token_hash
 
     assert len(email_sender.sent_verifications) == 2
     assert sent_verification.username == registered_user.username
     assert sent_verification.email == registered_user.email
-    assert new_verification_code_hash != old_verification_code_hash
-    assert store.get_email_verification(old_verification_code_hash) is None
+    assert new_verification_token_hash != old_verification_token_hash
+    assert store.get_email_verification(old_verification_token_hash) is None
     assert verify_token(
-        sent_verification.verification_code,
-        new_verification_code_hash,
+        sent_verification.verification_token,
+        new_verification_token_hash,
         SECRET_KEY,
     )
     assert (
-        store.get_email_verification(new_verification_code_hash).username
+        store.get_email_verification(new_verification_token_hash).username
         == registered_user.username
     )
 
@@ -47,19 +47,19 @@ def test_resend_verification_rejects_invalid_username_or_email(
     userharbor, store, email_sender, register_user, username, email
 ) -> None:
     registered_user = register_user()
-    verification_code_hash = store.users[
+    verification_token_hash = store.users[
         registered_user.username
-    ].email_verification_code_hash
+    ].email_verification_token_hash
 
     with pytest.raises(InvalidUsernameError, match="Invalid username or email"):
         userharbor.resend_verification(username, email)
 
     assert len(email_sender.sent_verifications) == 1
     assert (
-        store.users[registered_user.username].email_verification_code_hash
-        == verification_code_hash
+        store.users[registered_user.username].email_verification_token_hash
+        == verification_token_hash
     )
-    assert store.get_email_verification(verification_code_hash) is not None
+    assert store.get_email_verification(verification_token_hash) is not None
 
 
 def test_resend_verification_rejects_verified_user(

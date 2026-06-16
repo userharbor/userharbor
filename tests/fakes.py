@@ -9,7 +9,7 @@ class StoredUser:
     username: str
     email: str
     password_hash: str
-    email_verification_code_hash: str
+    email_verification_token_hash: str
     verified: bool = False
     password_reset_token_hash: str | None = None
     session_token_hashes: list[str] | None = None
@@ -23,7 +23,7 @@ class StoredUser:
 class SentVerification:
     username: str
     email: str
-    verification_code: str
+    verification_token: str
 
 
 @dataclass
@@ -38,7 +38,7 @@ class RegisteredUser:
     username: str
     email: str
     password: str
-    verification_code: str
+    verification_token: str
 
 
 class InMemoryUserStore:
@@ -52,33 +52,31 @@ class InMemoryUserStore:
             username=user.username,
             email=user.email,
             password_hash=user.password,
-            email_verification_code_hash=user.verification_code_hash,
+            email_verification_token_hash=user.verification_token_hash,
         )
-        self.email_verifications[user.verification_code_hash] = EmailVerification(
+        self.email_verifications[user.verification_token_hash] = EmailVerification(
             username=user.username,
-            verification_code_hash=user.verification_code_hash,
+            verification_token_hash=user.verification_token_hash,
             expires_at=user.expires_at,
         )
 
     def get_email_verification(
-        self, verification_code_hash: str
+        self, verification_token_hash: str
     ) -> EmailVerification | None:
-        return self.email_verifications.get(verification_code_hash)
+        return self.email_verifications.get(verification_token_hash)
 
     def set_email_verification(self, verification: EmailVerification) -> None:
-        old_verification_code_hash = self.users[
+        old_verification_token_hash = self.users[
             verification.username
-        ].email_verification_code_hash
-        self.email_verifications.pop(old_verification_code_hash, None)
+        ].email_verification_token_hash
+        self.email_verifications.pop(old_verification_token_hash, None)
         self.users[
             verification.username
-        ].email_verification_code_hash = verification.verification_code_hash
-        self.email_verifications[
-            verification.verification_code_hash
-        ] = verification
+        ].email_verification_token_hash = verification.verification_token_hash
+        self.email_verifications[verification.verification_token_hash] = verification
 
-    def remove_email_verification(self, verification_code_hash: str) -> None:
-        del self.email_verifications[verification_code_hash]
+    def remove_email_verification(self, verification_token_hash: str) -> None:
+        del self.email_verifications[verification_token_hash]
 
     def set_user_verified(self, username: str) -> None:
         self.users[username].verified = True
@@ -140,23 +138,21 @@ class RecordingEmailSender:
         self.sent_password_resets: list[SentPasswordReset] = []
 
     def send_verification(
-        self, username: str, email: str, verification_code: str
+        self, username: str, email: str, verification_token: str
     ) -> None:
         self.sent_verifications.append(
             SentVerification(
                 username=username,
                 email=email,
-                verification_code=verification_code,
+                verification_token=verification_token,
             )
         )
 
-    def send_password_reset(
-        self, username: str, email: str, reset_code: str
-    ) -> None:
+    def send_password_reset(self, username: str, email: str, reset_token: str) -> None:
         self.sent_password_resets.append(
             SentPasswordReset(
                 username=username,
                 email=email,
-                reset_token=reset_code,
+                reset_token=reset_token,
             )
         )

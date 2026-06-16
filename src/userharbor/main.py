@@ -37,28 +37,30 @@ class UserHarbor:
         if not is_password_strong(password):
             raise WeakPasswordError("Weak password")
 
-        verification_code = generate_token()
+        verification_token = generate_token()
         self._store.create_user(
             CreateUserRequest(
                 username=username,
                 email=email,
                 password=hash_password(password),
-                verification_code_hash=hash_token(verification_code, self._secret_key),
+                verification_token_hash=hash_token(
+                    verification_token, self._secret_key
+                ),
                 expires_at=datetime.now() + timedelta(hours=24),
             )
         )
-        self._email_sender.send_verification(username, email, verification_code)
+        self._email_sender.send_verification(username, email, verification_token)
 
-    def verify_email(self, verification_code: str) -> None:
+    def verify_email(self, verification_token: str) -> None:
         verification = self._store.get_email_verification(
-            hash_token(verification_code, self._secret_key)
+            hash_token(verification_token, self._secret_key)
         )
         if not verification:
             raise InvalidVerificationTokenError("Invalid verification token")
         if datetime.now() > verification.expires_at:
-            self._store.remove_email_verification(verification.verification_code_hash)
+            self._store.remove_email_verification(verification.verification_token_hash)
             raise InvalidVerificationTokenError("Verification token expired")
-        self._store.remove_email_verification(verification.verification_code_hash)
+        self._store.remove_email_verification(verification.verification_token_hash)
         self._store.set_user_verified(verification.username)
 
     def resend_verification(self, username: str, email: str) -> None:
@@ -66,15 +68,17 @@ class UserHarbor:
             raise InvalidUsernameError("Invalid username or email")
         if self._store.is_user_verified(username):
             raise UserAlreadyVerifiedError("User already verified")
-        verification_code = generate_token()
+        verification_token = generate_token()
         self._store.set_email_verification(
             EmailVerification(
                 username=username,
-                verification_code_hash=hash_token(verification_code, self._secret_key),
+                verification_token_hash=hash_token(
+                    verification_token, self._secret_key
+                ),
                 expires_at=datetime.now() + timedelta(hours=24),
             )
         )
-        self._email_sender.send_verification(username, email, verification_code)
+        self._email_sender.send_verification(username, email, verification_token)
 
     def verify_session(self, session_token: str) -> bool:
         session = self._store.get_session(hash_token(session_token, self._secret_key))
