@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 
-from userharbor.interfaces import CreateUserRequest, EmailVerification, Session
+from userharbor.interfaces import CreateUserRequest, UserToken
 
 
 @dataclass
@@ -44,8 +43,8 @@ class RegisteredUser:
 class InMemoryUserStore:
     def __init__(self) -> None:
         self.users: dict[str, StoredUser] = {}
-        self.email_verifications: dict[str, EmailVerification] = {}
-        self.sessions: dict[str, Session] = {}
+        self.email_verifications: dict[str, UserToken] = {}
+        self.sessions: dict[str, UserToken] = {}
 
     def create_user(self, user: CreateUserRequest) -> None:
         self.users[user.username] = StoredUser(
@@ -54,26 +53,26 @@ class InMemoryUserStore:
             password_hash=user.password,
             email_verification_token_hash=user.verification_token_hash,
         )
-        self.email_verifications[user.verification_token_hash] = EmailVerification(
+        self.email_verifications[user.verification_token_hash] = UserToken(
             username=user.username,
-            verification_token_hash=user.verification_token_hash,
+            token_hash=user.verification_token_hash,
             expires_at=user.expires_at,
         )
 
     def get_email_verification(
         self, verification_token_hash: str
-    ) -> EmailVerification | None:
+    ) -> UserToken | None:
         return self.email_verifications.get(verification_token_hash)
 
-    def set_email_verification(self, verification: EmailVerification) -> None:
+    def set_email_verification(self, verification: UserToken) -> None:
         old_verification_token_hash = self.users[
             verification.username
         ].email_verification_token_hash
         self.email_verifications.pop(old_verification_token_hash, None)
         self.users[
             verification.username
-        ].email_verification_token_hash = verification.verification_token_hash
-        self.email_verifications[verification.verification_token_hash] = verification
+        ].email_verification_token_hash = verification.token_hash
+        self.email_verifications[verification.token_hash] = verification
 
     def remove_email_verification(self, verification_token_hash: str) -> None:
         del self.email_verifications[verification_token_hash]
@@ -90,17 +89,13 @@ class InMemoryUserStore:
     def set_password_hash(self, username: str, password_hash: str) -> None:
         self.users[username].password_hash = password_hash
 
-    def add_session(self, username: str, session_token_hash: str) -> None:
-        session_token_hashes = self.users[username].session_token_hashes
+    def add_session(self, session: UserToken) -> None:
+        session_token_hashes = self.users[session.username].session_token_hashes
         assert session_token_hashes is not None
-        session_token_hashes.append(session_token_hash)
-        self.sessions[session_token_hash] = Session(
-            username=username,
-            token_hash=session_token_hash,
-            expires_at=datetime.now() + timedelta(days=30),
-        )
+        session_token_hashes.append(session.token_hash)
+        self.sessions[session.token_hash] = session
 
-    def get_session(self, token_hash: str) -> Session | None:
+    def get_session(self, token_hash: str) -> UserToken | None:
         return self.sessions.get(token_hash)
 
     def remove_session(self, session_token_hash: str) -> None:
@@ -123,6 +118,9 @@ class InMemoryUserStore:
 
     def set_password_reset_token_hash(self, username: str, token_hash: str) -> None:
         self.users[username].password_reset_token_hash = token_hash
+
+    def remove_password_reset_token_hash(self, username: str) -> None:
+        self.users[username].password_reset_token_hash = None
 
     def is_user_exists(self, username: str, email: str) -> bool:
         stored_user = self.users.get(username)

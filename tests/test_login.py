@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pytest
 from conftest import SECRET_KEY
 
@@ -8,12 +10,20 @@ from userharbor.security import verify_token
 def test_login_creates_session_for_verified_user(
     userharbor, store, verified_user
 ) -> None:
+    before_login = datetime.now()
+
     session_token = userharbor.login(verified_user.username, verified_user.password)
+
+    after_login = datetime.now()
 
     session_token_hashes = store.users[verified_user.username].session_token_hashes
     assert session_token_hashes is not None
     assert len(session_token_hashes) == 1
-    assert verify_token(session_token, session_token_hashes[0], SECRET_KEY)
+    session = store.get_session(session_token_hashes[0])
+    assert session is not None
+    assert verify_token(session_token, session.token_hash, SECRET_KEY)
+    assert before_login + timedelta(days=30) <= session.expires_at
+    assert session.expires_at <= after_login + timedelta(days=30)
 
 
 def test_login_rejects_invalid_password(userharbor, store, verified_user) -> None:

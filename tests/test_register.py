@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pytest
 from conftest import (
     SECRET_KEY,
@@ -17,10 +19,15 @@ from userharbor.security import verify_password, verify_token
 def test_register_creates_user_and_sends_verification(
     userharbor, store, email_sender
 ) -> None:
+    before_register = datetime.now()
+
     userharbor.register(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD)
+
+    after_register = datetime.now()
 
     stored_user = store.users[VALID_USERNAME]
     sent_verification = email_sender.sent_verifications[0]
+    verification = store.email_verifications[stored_user.email_verification_token_hash]
 
     assert stored_user.username == VALID_USERNAME
     assert stored_user.email == VALID_EMAIL
@@ -35,12 +42,9 @@ def test_register_creates_user_and_sends_verification(
         stored_user.email_verification_token_hash,
         SECRET_KEY,
     )
-    assert (
-        store.email_verifications[
-            stored_user.email_verification_token_hash
-        ].username
-        == VALID_USERNAME
-    )
+    assert verification.username == VALID_USERNAME
+    assert before_register + timedelta(hours=24) <= verification.expires_at
+    assert verification.expires_at <= after_register + timedelta(hours=24)
 
 
 @pytest.mark.parametrize(

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pytest
 from conftest import SECRET_KEY, VALID_EMAIL, VALID_USERNAME
 
@@ -13,7 +15,11 @@ def test_resend_verification_replaces_token_hash_and_sends_email(
         registered_user.username
     ].email_verification_token_hash
 
+    before_resend = datetime.now()
+
     userharbor.resend_verification(registered_user.username, registered_user.email)
+
+    after_resend = datetime.now()
 
     sent_verification = email_sender.sent_verifications[-1]
     new_verification_token_hash = store.users[
@@ -30,10 +36,11 @@ def test_resend_verification_replaces_token_hash_and_sends_email(
         new_verification_token_hash,
         SECRET_KEY,
     )
-    assert (
-        store.get_email_verification(new_verification_token_hash).username
-        == registered_user.username
-    )
+    verification = store.get_email_verification(new_verification_token_hash)
+    assert verification is not None
+    assert verification.username == registered_user.username
+    assert before_resend + timedelta(hours=24) <= verification.expires_at
+    assert verification.expires_at <= after_resend + timedelta(hours=24)
 
 
 @pytest.mark.parametrize(
