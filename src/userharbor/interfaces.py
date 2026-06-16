@@ -41,8 +41,8 @@ class UserStore(Protocol):
 
 class EmailSender(Protocol):
     def send_verification(
-        self, username: str, email: str, verification_code: str
+        self, username: str, email: str, verification_token: str
     ) -> None: ...
     def send_password_reset(
-        self, username: str, email: str, reset_code: str
+        self, username: str, email: str, reset_token: str
     ) -> None: ...
