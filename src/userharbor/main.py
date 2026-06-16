@@ -7,9 +7,10 @@ from .exceptions import (
     InvalidUsernameError,
     InvalidVerificationTokenError,
     UnverifiedUserError,
+    UserAlreadyVerifiedError,
     WeakPasswordError,
 )
-from .interfaces import CreateUserRequest, EmailSender, UserStore
+from .interfaces import CreateUserRequest, EmailSender, EmailVerification, UserStore
 from .security import (
     generate_token,
     hash_password,
@@ -59,6 +60,21 @@ class UserHarbor:
             raise InvalidVerificationTokenError("Verification token expired")
         self._store.remove_email_verification(verification.verification_code_hash)
         self._store.set_user_verified(verification.username)
+
+    def resend_verification(self, username: str, email: str) -> None:
+        if not self._store.is_user_exists(username, email):
+            raise InvalidUsernameError("Invalid username or email")
+        if self._store.is_user_verified(username):
+            raise UserAlreadyVerifiedError("User already verified")
+        verification_code = generate_token()
+        self._store.set_email_verification(
+            EmailVerification(
+                username=username,
+                verification_code_hash=hash_token(verification_code, self._secret_key),
+                expires_at=datetime.now() + timedelta(hours=24),
+            )
+        )
+        self._email_sender.send_verification(username, email, verification_code)
 
     def verify_session(self, session_token: str) -> bool:
         session = self._store.get_session(hash_token(session_token, self._secret_key))

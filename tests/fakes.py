@@ -65,6 +65,18 @@ class InMemoryUserStore:
     ) -> EmailVerification | None:
         return self.email_verifications.get(verification_code_hash)
 
+    def set_email_verification(self, verification: EmailVerification) -> None:
+        old_verification_code_hash = self.users[
+            verification.username
+        ].email_verification_code_hash
+        self.email_verifications.pop(old_verification_code_hash, None)
+        self.users[
+            verification.username
+        ].email_verification_code_hash = verification.verification_code_hash
+        self.email_verifications[
+            verification.verification_code_hash
+        ] = verification
+
     def remove_email_verification(self, verification_code_hash: str) -> None:
         del self.email_verifications[verification_code_hash]
 
