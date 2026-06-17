@@ -99,32 +99,37 @@ if harbor.verify_session(session_token):
 current_user = harbor.get_current_user(session_token)
 print(current_user.username)
 
+# Logout
+harbor.logout(session_token)
+
 # Change password
+session_token = harbor.login(
+    username="jane",
+    password="StrongPassword123!",
+)
 harbor.change_password(
     old_password="StrongPassword123!",
     new_password="EvenStrongerPassword123!",
     session_token=session_token,
 )
 
-# Delete account instead of logging out
-harbor.delete_account(
-    password="EvenStrongerPassword123!",
-    session_token=session_token,
-)
-
-# Logout
-harbor.logout(session_token)
-
 # Send password reset email
-harbor.send_password_reset(
-    username="jane",
-    email="jane@example.com",
-)
+harbor.send_password_reset("jane@example.com")
 
 # Reset password
 harbor.reset_password(
     new_password="NewStrongPassword123!",
     reset_token="reset-token-from-email",
+)
+
+# Delete account
+session_token = harbor.login(
+    username="jane",
+    password="NewStrongPassword123!",
+)
+harbor.delete_account(
+    password="NewStrongPassword123!",
+    session_token=session_token,
 )
 ```
 
@@ -297,11 +302,6 @@ Integrations should implement the protocols shown below.
 ## `UserStore` interface
 
 ```python
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Protocol
-
-
 @dataclass
 class UserToken:
     username: str
@@ -326,6 +326,8 @@ class User:
 
 
 class UserStore(Protocol):
+    def transaction(self) -> AbstractContextManager[None]: ...
+
     def create_user(self, user: CreateUserRequest) -> None: ...
     def set_user_verified(self, username: str) -> None: ...
     def delete_user(self, username: str) -> None: ...
@@ -356,9 +358,15 @@ A `UserStore` implementation is responsible for:
 * storing email verification tokens,
 * storing password reset tokens,
 * removing sessions and tokens,
+* providing transaction boundaries for multi-step updates,
 * persisting data.
 
 The store should not store raw tokens.
+
+`transaction()` should return a context manager that commits changes when the
+block finishes successfully and rolls them back when an exception is raised.
+UserHarbor uses it around operations that update multiple related records, such
+as email verification, password reset, password change, and account deletion.
 
 ---
 
