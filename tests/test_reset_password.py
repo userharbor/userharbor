@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from conftest import VALID_PASSWORD
 
 from userharbor.exceptions import InvalidPasswordResetTokenError, WeakPasswordError
 from userharbor.security import verify_password
+from userharbor.utils import utcnow
 
 NEW_PASSWORD = "ResetStrongpass1!"
 
@@ -59,8 +60,14 @@ def test_reset_password_rejects_invalid_reset_token(
     ):
         userharbor.reset_password(NEW_PASSWORD, "wrong-reset-token")
 
-    assert store.users[registered_user.username].password_hash == password_hash_before_reset
-    assert store.users[registered_user.username].password_reset_token_hash == reset_token_hash
+    assert (
+        store.users[registered_user.username].password_hash
+        == password_hash_before_reset
+    )
+    assert (
+        store.users[registered_user.username].password_reset_token_hash
+        == reset_token_hash
+    )
 
 
 def test_reset_password_rejects_expired_reset_token(
@@ -71,9 +78,7 @@ def test_reset_password_rejects_expired_reset_token(
     reset_token = email_sender.sent_password_resets[0].reset_token
     reset_token_hash = store.users[registered_user.username].password_reset_token_hash
     assert reset_token_hash is not None
-    store.password_resets[
-        reset_token_hash
-    ].expires_at = datetime.now() - timedelta(seconds=1)
+    store.password_resets[reset_token_hash].expires_at = utcnow() - timedelta(seconds=1)
     password_hash_before_reset = store.users[registered_user.username].password_hash
 
     with pytest.raises(
@@ -81,7 +86,10 @@ def test_reset_password_rejects_expired_reset_token(
     ):
         userharbor.reset_password(NEW_PASSWORD, reset_token)
 
-    assert store.users[registered_user.username].password_hash == password_hash_before_reset
+    assert (
+        store.users[registered_user.username].password_hash
+        == password_hash_before_reset
+    )
     assert store.users[registered_user.username].password_reset_token_hash is None
     assert store.get_password_reset(reset_token_hash) is None
 
@@ -98,5 +106,11 @@ def test_reset_password_rejects_weak_new_password(
     with pytest.raises(WeakPasswordError, match="Weak new password"):
         userharbor.reset_password("weak", reset_token)
 
-    assert store.users[registered_user.username].password_hash == password_hash_before_reset
-    assert store.users[registered_user.username].password_reset_token_hash == reset_token_hash
+    assert (
+        store.users[registered_user.username].password_hash
+        == password_hash_before_reset
+    )
+    assert (
+        store.users[registered_user.username].password_reset_token_hash
+        == reset_token_hash
+    )

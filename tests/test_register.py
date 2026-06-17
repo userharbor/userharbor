@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from conftest import (
@@ -14,16 +14,17 @@ from userharbor.exceptions import (
     WeakPasswordError,
 )
 from userharbor.security import verify_password, verify_token
+from userharbor.utils import utcnow
 
 
 def test_register_creates_user_and_sends_verification(
     userharbor, store, email_sender
 ) -> None:
-    before_register = datetime.now()
+    before_register = utcnow()
 
     userharbor.register(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD)
 
-    after_register = datetime.now()
+    after_register = utcnow()
 
     stored_user = store.users[VALID_USERNAME]
     sent_verification = email_sender.sent_verifications[0]

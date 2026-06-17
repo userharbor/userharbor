@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from .exceptions import (
     InvalidEmailError,
@@ -18,6 +18,7 @@ from .security import (
     hash_token,
     verify_password,
 )
+from .utils import utcnow
 from .validations import is_email_valid, is_password_strong, is_username_valid
 
 
@@ -46,7 +47,7 @@ class UserHarbor:
                 verification_token_hash=hash_token(
                     verification_token, self._secret_key
                 ),
-                expires_at=datetime.now() + timedelta(hours=24),
+                expires_at=utcnow() + timedelta(hours=24),
             )
         )
         self._email_sender.send_verification(username, email, verification_token)
@@ -57,7 +58,7 @@ class UserHarbor:
         )
         if not verification:
             raise InvalidVerificationTokenError("Invalid verification token")
-        if datetime.now() > verification.expires_at:
+        if utcnow() > verification.expires_at:
             self._store.remove_email_verification(verification.token_hash)
             raise InvalidVerificationTokenError("Verification token expired")
         self._store.remove_email_verification(verification.token_hash)
@@ -73,7 +74,7 @@ class UserHarbor:
             UserToken(
                 username=username,
                 token_hash=hash_token(verification_token, self._secret_key),
-                expires_at=datetime.now() + timedelta(hours=24),
+                expires_at=utcnow() + timedelta(hours=24),
             )
         )
         self._email_sender.send_verification(username, email, verification_token)
@@ -89,7 +90,7 @@ class UserHarbor:
             UserToken(
                 username=username,
                 token_hash=hash_token(session_token, self._secret_key),
-                expires_at=datetime.now() + timedelta(days=30),
+                expires_at=utcnow() + timedelta(days=30),
             )
         )
         return session_token
@@ -98,7 +99,7 @@ class UserHarbor:
         session = self._store.get_session(hash_token(session_token, self._secret_key))
         if not session:
             return False
-        if datetime.now() > session.expires_at:
+        if utcnow() > session.expires_at:
             self._store.remove_session(session.token_hash)
             return False
         return True
@@ -122,7 +123,7 @@ class UserHarbor:
             UserToken(
                 username=username,
                 token_hash=hash_token(reset_token, self._secret_key),
-                expires_at=datetime.now() + timedelta(hours=1),
+                expires_at=utcnow() + timedelta(hours=1),
             )
         )
         self._email_sender.send_password_reset(username, email, reset_token)
@@ -132,7 +133,7 @@ class UserHarbor:
         password_reset = self._store.get_password_reset(reset_token_hash)
         if not password_reset:
             raise InvalidPasswordResetTokenError("Invalid password reset token")
-        if datetime.now() > password_reset.expires_at:
+        if utcnow() > password_reset.expires_at:
             self._store.remove_password_reset(password_reset.token_hash)
             raise InvalidPasswordResetTokenError("Password reset token expired")
         if not is_password_strong(new_password):

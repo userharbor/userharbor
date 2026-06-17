@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
+
+from userharbor.utils import utcnow
 
 
 def test_verify_session_accepts_valid_session_token(userharbor, logged_in_user) -> None:
@@ -20,7 +22,7 @@ def test_verify_session_removes_expired_session(
 ) -> None:
     registered_user, session_token = logged_in_user
     session_token_hash = store.users[registered_user.username].session_token_hashes[-1]
-    store.sessions[session_token_hash].expires_at = datetime.now() - timedelta(days=1)
+    store.sessions[session_token_hash].expires_at = utcnow() - timedelta(days=1)
 
     assert not userharbor.verify_session(session_token)
     assert store.users[registered_user.username].session_token_hashes == []

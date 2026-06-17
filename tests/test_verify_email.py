@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 
 from userharbor.exceptions import InvalidVerificationTokenError
+from userharbor.utils import utcnow
 
 
 def test_verify_marks_user_verified(userharbor, store, register_user) -> None:
@@ -37,9 +38,9 @@ def test_verify_rejects_expired_verification_token(
     verification_token_hash = store.users[
         registered_user.username
     ].email_verification_token_hash
-    store.email_verifications[
-        verification_token_hash
-    ].expires_at = datetime.now() - timedelta(seconds=1)
+    store.email_verifications[verification_token_hash].expires_at = (
+        utcnow() - timedelta(seconds=1)
+    )
 
     with pytest.raises(
         InvalidVerificationTokenError, match="Verification token expired"

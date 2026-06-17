@@ -1,20 +1,21 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from conftest import SECRET_KEY
 
 from userharbor.exceptions import InvalidPasswordError, UnverifiedUserError
 from userharbor.security import verify_token
+from userharbor.utils import utcnow
 
 
 def test_login_creates_session_for_verified_user(
     userharbor, store, verified_user
 ) -> None:
-    before_login = datetime.now()
+    before_login = utcnow()
 
     session_token = userharbor.login(verified_user.username, verified_user.password)
 
-    after_login = datetime.now()
+    after_login = utcnow()
 
     session_token_hashes = store.users[verified_user.username].session_token_hashes
     assert session_token_hashes is not None

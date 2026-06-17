@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from conftest import SECRET_KEY, VALID_EMAIL, VALID_USERNAME
 
 from userharbor.exceptions import InvalidUsernameError
 from userharbor.security import verify_token
+from userharbor.utils import utcnow
 
 
 def test_send_password_reset_stores_token_hash_and_sends_email(
@@ -12,11 +13,11 @@ def test_send_password_reset_stores_token_hash_and_sends_email(
 ) -> None:
     registered_user = register_user()
 
-    before_send = datetime.now()
+    before_send = utcnow()
 
     userharbor.send_password_reset(registered_user.username, registered_user.email)
 
-    after_send = datetime.now()
+    after_send = utcnow()
 
     sent_password_reset = email_sender.sent_password_resets[0]
     password_reset_token_hash = store.users[

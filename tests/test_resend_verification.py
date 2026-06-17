@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from conftest import SECRET_KEY, VALID_EMAIL, VALID_USERNAME
 
 from userharbor.exceptions import InvalidUsernameError, UserAlreadyVerifiedError
 from userharbor.security import verify_token
+from userharbor.utils import utcnow
 
 
 def test_resend_verification_replaces_token_hash_and_sends_email(
@@ -15,11 +16,11 @@ def test_resend_verification_replaces_token_hash_and_sends_email(
         registered_user.username
     ].email_verification_token_hash
 
-    before_resend = datetime.now()
+    before_resend = utcnow()
 
     userharbor.resend_verification(registered_user.username, registered_user.email)
 
-    after_resend = datetime.now()
+    after_resend = utcnow()
 
     sent_verification = email_sender.sent_verifications[-1]
     new_verification_token_hash = store.users[
