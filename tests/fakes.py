@@ -1,6 +1,13 @@
+from contextlib import nullcontext
 from dataclasses import dataclass
 
-from userharbor.interfaces import CreateUserRequest, User, UserToken
+from userharbor.interfaces import (
+    CreateUserRequest,
+    EmailSender,
+    User,
+    UserStore,
+    UserToken,
+)
 
 
 @dataclass
@@ -40,12 +47,15 @@ class RegisteredUser:
     verification_token: str
 
 
-class InMemoryUserStore:
+class InMemoryUserStore(UserStore):
     def __init__(self) -> None:
         self.users: dict[str, StoredUser] = {}
         self.email_verifications: dict[str, UserToken] = {}
         self.sessions: dict[str, UserToken] = {}
         self.password_resets: dict[str, UserToken] = {}
+
+    def transaction(self):
+        return nullcontext()
 
     def create_user(self, user: CreateUserRequest) -> None:
         self.users[user.username] = StoredUser(
@@ -60,8 +70,8 @@ class InMemoryUserStore:
             expires_at=user.expires_at,
         )
 
-    def get_email_verification(self, verification_token_hash: str) -> UserToken | None:
-        return self.email_verifications.get(verification_token_hash)
+    def get_email_verification(self, token_hash: str) -> UserToken | None:
+        return self.email_verifications.get(token_hash)
 
     def set_email_verification(self, verification: UserToken) -> None:
         old_verification_token_hash = self.users[
@@ -73,8 +83,8 @@ class InMemoryUserStore:
         ].email_verification_token_hash = verification.token_hash
         self.email_verifications[verification.token_hash] = verification
 
-    def remove_email_verification(self, verification_token_hash: str) -> None:
-        del self.email_verifications[verification_token_hash]
+    def remove_email_verification(self, token_hash: str) -> None:
+        del self.email_verifications[token_hash]
 
     def set_user_verified(self, username: str) -> None:
         self.users[username].verified = True
@@ -114,11 +124,11 @@ class InMemoryUserStore:
                 )
         return None
 
-    def remove_session(self, session_token_hash: str) -> None:
-        session = self.sessions.pop(session_token_hash)
+    def remove_session(self, token_hash: str) -> None:
+        session = self.sessions.pop(token_hash)
         session_token_hashes = self.users[session.username].session_token_hashes
         assert session_token_hashes is not None
-        session_token_hashes.remove(session_token_hash)
+        session_token_hashes.remove(token_hash)
 
     def remove_all_sessions(self, username: str) -> None:
         session_token_hashes = self.users[username].session_token_hashes
@@ -145,7 +155,7 @@ class InMemoryUserStore:
         del self.users[username]
 
 
-class RecordingEmailSender:
+class RecordingEmailSender(EmailSender):
     def __init__(self) -> None:
         self.sent_verifications: list[SentVerification] = []
         self.sent_password_resets: list[SentPasswordReset] = []

@@ -1,3 +1,4 @@
+from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
@@ -27,6 +28,8 @@ class User:
 
 
 class UserStore(Protocol):
+    def transaction(self) -> AbstractContextManager[None]: ...
+
     def create_user(self, user: CreateUserRequest) -> None: ...
     def set_user_verified(self, username: str) -> None: ...
     def delete_user(self, username: str) -> None: ...

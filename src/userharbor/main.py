@@ -53,16 +53,17 @@ class UserHarbor:
         self._email_sender.send_verification(username, email, verification_token)
 
     def verify_email(self, verification_token: str) -> None:
-        verification = self._store.get_email_verification(
-            hash_token(verification_token, self._secret_key)
-        )
-        if not verification:
-            raise InvalidVerificationTokenError("Invalid verification token")
-        if utcnow() > verification.expires_at:
+        with self._store.transaction():
+            verification = self._store.get_email_verification(
+                hash_token(verification_token, self._secret_key)
+            )
+            if not verification:
+                raise InvalidVerificationTokenError("Invalid verification token")
+            if utcnow() > verification.expires_at:
+                self._store.remove_email_verification(verification.token_hash)
+                raise InvalidVerificationTokenError("Verification token expired")
             self._store.remove_email_verification(verification.token_hash)
-            raise InvalidVerificationTokenError("Verification token expired")
-        self._store.remove_email_verification(verification.token_hash)
-        self._store.set_user_verified(verification.username)
+            self._store.set_user_verified(verification.username)
 
     def resend_verification(self, email: str) -> None:
         user = self._store.get_user_by_email(email)
@@ -139,42 +140,45 @@ class UserHarbor:
 
     def reset_password(self, new_password: str, reset_token: str) -> None:
         reset_token_hash = hash_token(reset_token, self._secret_key)
-        password_reset = self._store.get_password_reset(reset_token_hash)
-        if not password_reset:
-            raise InvalidPasswordResetTokenError("Invalid password reset token")
-        if utcnow() > password_reset.expires_at:
+        with self._store.transaction():
+            password_reset = self._store.get_password_reset(reset_token_hash)
+            if not password_reset:
+                raise InvalidPasswordResetTokenError("Invalid password reset token")
+            if utcnow() > password_reset.expires_at:
+                self._store.remove_password_reset(password_reset.token_hash)
+                raise InvalidPasswordResetTokenError("Password reset token expired")
+            if not is_password_strong(new_password):
+                raise WeakPasswordError("Weak new password")
+            self._store.set_password_hash(
+                password_reset.username,
+                hash_password(new_password),
+            )
+            self._store.remove_all_sessions(password_reset.username)
             self._store.remove_password_reset(password_reset.token_hash)
-            raise InvalidPasswordResetTokenError("Password reset token expired")
-        if not is_password_strong(new_password):
-            raise WeakPasswordError("Weak new password")
-        self._store.set_password_hash(
-            password_reset.username,
-            hash_password(new_password),
-        )
-        self._store.remove_all_sessions(password_reset.username)
-        self._store.remove_password_reset(password_reset.token_hash)
 
     def change_password(
         self, old_password: str, new_password: str, session_token: str
     ) -> None:
-        session = self._get_valid_session(session_token)
-        if not verify_password(
-            old_password, self._store.get_password_hash(session.username)
-        ):
-            raise InvalidPasswordError("Invalid old password")
-        if not is_password_strong(new_password):
-            raise WeakPasswordError("Weak new password")
-        self._store.set_password_hash(session.username, hash_password(new_password))
-        self._store.remove_all_sessions(session.username)
+        with self._store.transaction():
+            session = self._get_valid_session(session_token)
+            if not verify_password(
+                old_password, self._store.get_password_hash(session.username)
+            ):
+                raise InvalidPasswordError("Invalid old password")
+            if not is_password_strong(new_password):
+                raise WeakPasswordError("Weak new password")
+            self._store.set_password_hash(session.username, hash_password(new_password))
+            self._store.remove_all_sessions(session.username)
 
     def delete_account(self, password: str, session_token: str) -> None:
-        session = self._get_valid_session(session_token)
-        if not verify_password(
-            password, self._store.get_password_hash(session.username)
-        ):
-            raise InvalidPasswordError("Invalid password")
-        self._store.remove_all_sessions(session.username)
-        self._store.delete_user(session.username)
+        with self._store.transaction():
+            session = self._get_valid_session(session_token)
+            if not verify_password(
+                password, self._store.get_password_hash(session.username)
+            ):
+                raise InvalidPasswordError("Invalid password")
+            self._store.remove_all_sessions(session.username)
+            self._store.delete_user(session.username)
 
     def _get_valid_session(self, session_token: str) -> UserToken:
         session = self._store.get_session(hash_token(session_token, self._secret_key))
