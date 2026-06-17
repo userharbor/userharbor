@@ -14,7 +14,7 @@ def test_reset_password_updates_password_hash(
     userharbor, store, email_sender, register_user
 ) -> None:
     registered_user = register_user()
-    userharbor.send_password_reset(registered_user.username, registered_user.email)
+    userharbor.send_password_reset(registered_user.email)
     reset_token = email_sender.sent_password_resets[0].reset_token
     old_password_hash = store.users[registered_user.username].password_hash
 
@@ -35,7 +35,7 @@ def test_reset_password_removes_sessions_and_reset_token(
     second_session_token = userharbor.login(
         verified_user.username, verified_user.password
     )
-    userharbor.send_password_reset(verified_user.username, verified_user.email)
+    userharbor.send_password_reset(verified_user.email)
     reset_token = email_sender.sent_password_resets[0].reset_token
 
     userharbor.reset_password(NEW_PASSWORD, reset_token)
@@ -51,7 +51,7 @@ def test_reset_password_rejects_invalid_reset_token(
     userharbor, store, register_user
 ) -> None:
     registered_user = register_user()
-    userharbor.send_password_reset(registered_user.username, registered_user.email)
+    userharbor.send_password_reset(registered_user.email)
     password_hash_before_reset = store.users[registered_user.username].password_hash
     reset_token_hash = store.users[registered_user.username].password_reset_token_hash
 
@@ -74,7 +74,7 @@ def test_reset_password_rejects_expired_reset_token(
     userharbor, store, email_sender, register_user
 ) -> None:
     registered_user = register_user()
-    userharbor.send_password_reset(registered_user.username, registered_user.email)
+    userharbor.send_password_reset(registered_user.email)
     reset_token = email_sender.sent_password_resets[0].reset_token
     reset_token_hash = store.users[registered_user.username].password_reset_token_hash
     assert reset_token_hash is not None
@@ -98,7 +98,7 @@ def test_reset_password_rejects_weak_new_password(
     userharbor, store, email_sender, register_user
 ) -> None:
     registered_user = register_user()
-    userharbor.send_password_reset(registered_user.username, registered_user.email)
+    userharbor.send_password_reset(registered_user.email)
     reset_token = email_sender.sent_password_resets[0].reset_token
     password_hash_before_reset = store.users[registered_user.username].password_hash
     reset_token_hash = store.users[registered_user.username].password_reset_token_hash

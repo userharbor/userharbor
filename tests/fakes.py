@@ -113,6 +113,16 @@ class InMemoryUserStore:
             verified=stored_user.verified,
         )
 
+    def get_user_by_email(self, email: str) -> User | None:
+        for stored_user in self.users.values():
+            if stored_user.email == email:
+                return User(
+                    username=stored_user.username,
+                    email=stored_user.email,
+                    verified=stored_user.verified,
+                )
+        return None
+
     def remove_session(self, session_token_hash: str) -> None:
         session = self.sessions.pop(session_token_hash)
         session_token_hashes = self.users[session.username].session_token_hashes

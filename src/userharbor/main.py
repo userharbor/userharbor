@@ -116,18 +116,19 @@ class UserHarbor:
         session = self._get_valid_session(session_token)
         self._store.remove_all_sessions(session.username)
 
-    def send_password_reset(self, username: str, email: str) -> None:
-        if not self._store.is_user_exists(username, email):
-            raise InvalidUsernameError("Invalid username or email")
+    def send_password_reset(self, email: str) -> None:
+        user = self._store.get_user_by_email(email)
+        if not user:
+            raise InvalidEmailError("Invalid email")
         reset_token = generate_token()
         self._store.set_password_reset(
             UserToken(
-                username=username,
+                username=user.username,
                 token_hash=hash_token(reset_token, self._secret_key),
                 expires_at=utcnow() + timedelta(hours=1),
             )
         )
-        self._email_sender.send_password_reset(username, email, reset_token)
+        self._email_sender.send_password_reset(user.username, email, reset_token)
 
     def reset_password(self, new_password: str, reset_token: str) -> None:
         reset_token_hash = hash_token(reset_token, self._secret_key)
