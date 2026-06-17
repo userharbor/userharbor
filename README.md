@@ -95,12 +95,25 @@ session_token = harbor.login(
 if harbor.verify_session(session_token):
     print("User is logged in")
 
+# Get current user
+current_user = harbor.get_current_user(session_token)
+print(current_user.username)
+
 # Change password
 harbor.change_password(
     old_password="StrongPassword123!",
     new_password="EvenStrongerPassword123!",
     session_token=session_token,
 )
+
+# Delete account instead of logging out
+harbor.delete_account(
+    password="EvenStrongerPassword123!",
+    session_token=session_token,
+)
+
+# Logout
+harbor.logout(session_token)
 
 # Send password reset email
 harbor.send_password_reset(
@@ -113,9 +126,6 @@ harbor.reset_password(
     new_password="NewStrongPassword123!",
     reset_token="reset-token-from-email",
 )
-
-# Logout
-harbor.logout(session_token)
 ```
 
 ---
@@ -308,12 +318,20 @@ class CreateUserRequest:
     expires_at: datetime
 
 
+@dataclass
+class User:
+    username: str
+    email: str
+    verified: bool
+
+
 class UserStore(Protocol):
     def create_user(self, user: CreateUserRequest) -> None: ...
     def is_user_exists(self, username: str, email: str) -> bool: ...
     def is_user_verified(self, username: str) -> bool: ...
     def set_user_verified(self, username: str) -> None: ...
     def delete_user(self, username: str) -> None: ...
+    def get_current_user(self, token_hash: str) -> User | None: ...
 
     def get_email_verification(self, token_hash: str) -> UserToken | None: ...
     def set_email_verification(self, verification: UserToken) -> None: ...
