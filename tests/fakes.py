@@ -60,9 +60,6 @@ class InMemoryUserStore:
             expires_at=user.expires_at,
         )
 
-    def get_username(self, token_hash: str) -> str:
-        return self.sessions[token_hash].username
-
     def get_email_verification(
         self, verification_token_hash: str
     ) -> UserToken | None:
@@ -149,10 +146,6 @@ class InMemoryUserStore:
     def remove_password_reset(self, token_hash: str) -> None:
         reset = self.password_resets.pop(token_hash)
         self.users[reset.username].password_reset_token_hash = None
-
-    def is_user_exists(self, username: str, email: str) -> bool:
-        stored_user = self.users.get(username)
-        return stored_user is not None and stored_user.email == email
 
     def delete_user(self, username: str) -> None:
         del self.users[username]
