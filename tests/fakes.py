@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from userharbor.interfaces import CreateUserRequest, UserToken
+from userharbor.interfaces import CreateUserRequest, User, UserToken
 
 
 @dataclass
@@ -101,6 +101,17 @@ class InMemoryUserStore:
 
     def get_session(self, token_hash: str) -> UserToken | None:
         return self.sessions.get(token_hash)
+
+    def get_current_user(self, token_hash: str) -> User | None:
+        session = self.sessions.get(token_hash)
+        if session is None:
+            return None
+        stored_user = self.users[session.username]
+        return User(
+            username=stored_user.username,
+            email=stored_user.email,
+            verified=stored_user.verified,
+        )
 
     def remove_session(self, session_token_hash: str) -> None:
         session = self.sessions.pop(session_token_hash)

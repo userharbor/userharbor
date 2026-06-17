@@ -11,7 +11,7 @@ from .exceptions import (
     UserAlreadyVerifiedError,
     WeakPasswordError,
 )
-from .interfaces import CreateUserRequest, EmailSender, UserStore, UserToken
+from .interfaces import CreateUserRequest, EmailSender, User, UserStore, UserToken
 from .security import (
     generate_token,
     hash_password,
@@ -101,6 +101,12 @@ class UserHarbor:
             return True
         except InvalidSessionTokenError:
             return False
+
+    def get_current_user(self, session_token: str) -> User:
+        session = self._get_valid_session(session_token)
+        if user := self._store.get_current_user(session.token_hash):
+            return user
+        raise InvalidSessionTokenError("Invalid session token")
 
     def logout(self, session_token: str) -> None:
         session = self._get_valid_session(session_token)
