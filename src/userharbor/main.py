@@ -81,11 +81,14 @@ class UserHarbor:
         self._email_sender.send_verification(user.username, email, verification_token)
 
     def login(self, username: str, password: str) -> str:
+        user = self._store.get_user_by_username(username)
+        if not user:
+            raise InvalidUsernameError("Invalid username")
+        if not user.verified:
+            raise UnverifiedUserError("User email not verified")
         password_hash = self._store.get_password_hash(username)
         if not verify_password(password, password_hash):
             raise InvalidPasswordError("Invalid password")
-        if not self._store.is_user_verified(username):
-            raise UnverifiedUserError("User email not verified")
         session_token = generate_token()
         self._store.add_session(
             UserToken(

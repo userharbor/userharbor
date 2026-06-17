@@ -3,7 +3,11 @@ from datetime import timedelta
 import pytest
 from conftest import SECRET_KEY
 
-from userharbor.exceptions import InvalidPasswordError, UnverifiedUserError
+from userharbor.exceptions import (
+    InvalidPasswordError,
+    InvalidUsernameError,
+    UnverifiedUserError,
+)
 from userharbor.security import verify_token
 from userharbor.utils import utcnow
 
@@ -30,6 +34,13 @@ def test_login_creates_session_for_verified_user(
 def test_login_rejects_invalid_password(userharbor, store, verified_user) -> None:
     with pytest.raises(InvalidPasswordError, match="Invalid password"):
         userharbor.login(verified_user.username, "Wrongpass1!")
+
+    assert store.users[verified_user.username].session_token_hashes == []
+
+
+def test_login_rejects_invalid_username(userharbor, store, verified_user) -> None:
+    with pytest.raises(InvalidUsernameError, match="Invalid username"):
+        userharbor.login("unknown", verified_user.password)
 
     assert store.users[verified_user.username].session_token_hashes == []
 

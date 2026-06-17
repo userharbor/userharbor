@@ -81,9 +81,6 @@ class InMemoryUserStore:
     def set_user_verified(self, username: str) -> None:
         self.users[username].verified = True
 
-    def is_user_verified(self, username: str) -> bool:
-        return self.users[username].verified
-
     def get_password_hash(self, username: str) -> str:
         return self.users[username].password_hash
 
@@ -104,6 +101,16 @@ class InMemoryUserStore:
         if session is None:
             return None
         stored_user = self.users[session.username]
+        return User(
+            username=stored_user.username,
+            email=stored_user.email,
+            verified=stored_user.verified,
+        )
+
+    def get_user_by_username(self, username: str) -> User | None:
+        stored_user = self.users.get(username)
+        if stored_user is None:
+            return None
         return User(
             username=stored_user.username,
             email=stored_user.email,
