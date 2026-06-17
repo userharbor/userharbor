@@ -5,7 +5,6 @@ from conftest import SECRET_KEY
 
 from userharbor.exceptions import (
     InvalidPasswordError,
-    InvalidUsernameError,
     UnverifiedUserError,
 )
 from userharbor.security import verify_token
@@ -39,7 +38,7 @@ def test_login_rejects_invalid_password(userharbor, store, verified_user) -> Non
 
 
 def test_login_rejects_invalid_username(userharbor, store, verified_user) -> None:
-    with pytest.raises(InvalidUsernameError, match="Invalid username"):
+    with pytest.raises(InvalidPasswordError, match="Invalid username or password"):
         userharbor.login("unknown", verified_user.password)
 
     assert store.users[verified_user.username].session_token_hashes == []
