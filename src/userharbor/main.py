@@ -111,7 +111,7 @@ class UserHarbor:
 
     def get_current_user(self, session_token: str) -> User:
         session = self._get_valid_session(session_token)
-        if user := self._store.get_current_user(session.token_hash):
+        if user := self._store.get_user_by_username(session.username):
             return user
         raise InvalidSessionTokenError("Invalid session token")
 

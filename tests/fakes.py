@@ -60,9 +60,7 @@ class InMemoryUserStore:
             expires_at=user.expires_at,
         )
 
-    def get_email_verification(
-        self, verification_token_hash: str
-    ) -> UserToken | None:
+    def get_email_verification(self, verification_token_hash: str) -> UserToken | None:
         return self.email_verifications.get(verification_token_hash)
 
     def set_email_verification(self, verification: UserToken) -> None:
@@ -95,17 +93,6 @@ class InMemoryUserStore:
 
     def get_session(self, token_hash: str) -> UserToken | None:
         return self.sessions.get(token_hash)
-
-    def get_current_user(self, token_hash: str) -> User | None:
-        session = self.sessions.get(token_hash)
-        if session is None:
-            return None
-        stored_user = self.users[session.username]
-        return User(
-            username=stored_user.username,
-            email=stored_user.email,
-            verified=stored_user.verified,
-        )
 
     def get_user_by_username(self, username: str) -> User | None:
         stored_user = self.users.get(username)
