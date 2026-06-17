@@ -1,9 +1,9 @@
 from datetime import timedelta
 
 import pytest
-from conftest import SECRET_KEY, VALID_EMAIL, VALID_USERNAME
+from conftest import SECRET_KEY
 
-from userharbor.exceptions import InvalidUsernameError, UserAlreadyVerifiedError
+from userharbor.exceptions import InvalidEmailError, UserAlreadyVerifiedError
 from userharbor.security import verify_token
 from userharbor.utils import utcnow
 
@@ -18,7 +18,7 @@ def test_resend_verification_replaces_token_hash_and_sends_email(
 
     before_resend = utcnow()
 
-    userharbor.resend_verification(registered_user.username, registered_user.email)
+    userharbor.resend_verification(registered_user.email)
 
     after_resend = utcnow()
 
@@ -44,23 +44,16 @@ def test_resend_verification_replaces_token_hash_and_sends_email(
     assert verification.expires_at <= after_resend + timedelta(hours=24)
 
 
-@pytest.mark.parametrize(
-    ("username", "email"),
-    [
-        ("unknown", VALID_EMAIL),
-        (VALID_USERNAME, "wrong@example.com"),
-    ],
-)
-def test_resend_verification_rejects_invalid_username_or_email(
-    userharbor, store, email_sender, register_user, username, email
+def test_resend_verification_rejects_invalid_email(
+    userharbor, store, email_sender, register_user
 ) -> None:
     registered_user = register_user()
     verification_token_hash = store.users[
         registered_user.username
     ].email_verification_token_hash
 
-    with pytest.raises(InvalidUsernameError, match="Invalid username or email"):
-        userharbor.resend_verification(username, email)
+    with pytest.raises(InvalidEmailError, match="Invalid email"):
+        userharbor.resend_verification("wrong@example.com")
 
     assert len(email_sender.sent_verifications) == 1
     assert (
@@ -74,7 +67,7 @@ def test_resend_verification_rejects_verified_user(
     userharbor, store, email_sender, verified_user
 ) -> None:
     with pytest.raises(UserAlreadyVerifiedError, match="User already verified"):
-        userharbor.resend_verification(verified_user.username, verified_user.email)
+        userharbor.resend_verification(verified_user.email)
 
     assert len(email_sender.sent_verifications) == 1
     assert store.email_verifications == {}

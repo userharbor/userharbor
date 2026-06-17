@@ -64,20 +64,21 @@ class UserHarbor:
         self._store.remove_email_verification(verification.token_hash)
         self._store.set_user_verified(verification.username)
 
-    def resend_verification(self, username: str, email: str) -> None:
-        if not self._store.is_user_exists(username, email):
-            raise InvalidUsernameError("Invalid username or email")
-        if self._store.is_user_verified(username):
+    def resend_verification(self, email: str) -> None:
+        user = self._store.get_user_by_email(email)
+        if not user:
+            raise InvalidEmailError("Invalid email")
+        if user.verified:
             raise UserAlreadyVerifiedError("User already verified")
         verification_token = generate_token()
         self._store.set_email_verification(
             UserToken(
-                username=username,
+                username=user.username,
                 token_hash=hash_token(verification_token, self._secret_key),
                 expires_at=utcnow() + timedelta(hours=24),
             )
         )
-        self._email_sender.send_verification(username, email, verification_token)
+        self._email_sender.send_verification(user.username, email, verification_token)
 
     def login(self, username: str, password: str) -> str:
         password_hash = self._store.get_password_hash(username)
