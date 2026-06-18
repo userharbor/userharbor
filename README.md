@@ -1,7 +1,9 @@
 <picture>
   <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/logo-full.png" alt="userharbor">
 </picture>
+
 <!-- --8<-- [start:intro] -->
+
 [![GitHub License](https://img.shields.io/github/license/userharbor/userharbor)](https://github.com/userharbor/userharbor?tab=MIT-1-ov-file)
 [![Tests](https://img.shields.io/github/actions/workflow/status/userharbor/userharbor/publish.yml?label=tests)](https://github.com/userharbor/userharbor/blob/master/.github/workflows/tests.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/userharbor/userharbor)](https://codecov.io/gh/userharbor/userharbor)
@@ -11,7 +13,7 @@
 [![Linting: Ruff](https://img.shields.io/badge/linting-Ruff-black?logo=ruff&logoColor=black)](https://github.com/astral-sh/ruff)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Pytest](https://img.shields.io/badge/testing-Pytest-red?logo=pytest&logoColor=red)](https://docs.pytest.org/)
-[![Zensical](https://img.shields.io/badge/docs-Zensical-yellow?logo=MaterialForMkDocs&logoColor=yellow)](https://spaceshaman.github.io/userharbor/)
+[![Zensical](https://img.shields.io/badge/docs-Zensical-yellow?logo=MaterialForMkDocs&logoColor=yellow)](https://userharbor.github.io/userharbor/)
 
 > **Project status:** UserHarbor is currently in an early stage of development.
 > The API may change frequently. The library is not ready for production use yet.
@@ -149,9 +151,17 @@ harbor.delete_account(
     session_token=session_token,
 )
 ```
+
 <!-- --8<-- [end:intro] -->
+
+## Documentation
+
+The full documentation is available at [userharbor.github.io/userharbor/](https://userharbor.github.io/userharbor/)
+
 ## Architecture
+
 <!-- --8<-- [start:architecture] -->
+
 UserHarbor consists of three main parts:
 
 ```text
@@ -181,7 +191,9 @@ Instead, it relies on two protocols:
 This allows you to use official adapters or build your own integration.
 
 <!-- --8<-- [end:architecture] -->
+
 <!-- --8<-- [start:integrations] -->
+
 ## Official integrations
 
 ### SQLAlchemy
@@ -215,9 +227,13 @@ pip install userharbor-smtp
 ```
 
 The SMTP integration provides an implementation of `EmailSender`.
+
 <!-- --8<-- [end:integrations] -->
+
 ## Project creed
+
 <!-- --8<-- [start:creed] -->
+
 UserHarbor should remain simple, predictable, and easy to integrate.
 
 ### 1. Core should only do what is necessary
@@ -281,7 +297,9 @@ New features should be added carefully.
 The library should be easy to use in small projects, while still being possible to extend in larger applications.
 
 <!-- --8<-- [end:creed] -->
+
 <!-- --8<-- [start:custom-integrations] -->
+
 ## Creating custom integrations
 
 UserHarbor encourages custom integrations to be created as separate libraries.
@@ -406,9 +424,13 @@ It should not decide about:
 * user verification logic.
 
 These responsibilities belong to UserHarbor core.
+
 <!-- --8<-- [start:custom-integrations] -->
+
 ## Project scope
+
 <!-- --8<-- [start:scope] -->
+
 UserHarbor does not try to solve every identity-related problem.
 
 The following are outside the scope of the core library:
@@ -426,15 +448,21 @@ The following are outside the scope of the core library:
 * integrations with specific frameworks.
 
 Such features may be created as separate libraries or integrations, but they should not complicate the core project.
+
 <!-- --8<-- [end:scope] -->
+
 ## Changelog
 
 <!-- --8<-- [start:changelog] -->
+
 Changes for each release are thoroughly documented in [release notes](https://github.com/userharbor/userharbor/releases)
+
 <!-- --8<-- [end:changelog] -->
 
 ## Contributing
+
 <!-- --8<-- [start:contributing] -->
+
 The project is in an early stage of development and its API is not stable yet.
 
 The most welcome areas of contribution are:
@@ -453,6 +481,7 @@ Before starting work on a custom integration, consider reviewing the official ad
 https://github.com/userharbor/userharbor-sqlalchemy
 https://github.com/userharbor/userharbor-smtp
 ```
+
 <!-- --8<-- [end:contributing] -->
 
 ## License
