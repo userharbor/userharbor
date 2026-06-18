@@ -5,13 +5,13 @@
 [![GitHub License](https://img.shields.io/github/license/userharbor/userharbor)](https://github.com/userharbor/userharbor?tab=MIT-1-ov-file)
 [![Tests](https://img.shields.io/github/actions/workflow/status/userharbor/userharbor/publish.yml?label=tests)](https://github.com/userharbor/userharbor/blob/master/.github/workflows/tests.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/userharbor/userharbor)](https://codecov.io/gh/userharbor/userharbor)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/socketapi)](https://pypi.org/project/socketapi)
-[![PyPI - Version](https://img.shields.io/pypi/v/socketapi)](https://pypi.org/project/socketapi)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/userharbor)](https://pypi.org/project/userharbor)
+[![PyPI - Version](https://img.shields.io/pypi/v/userharbor)](https://pypi.org/project/userharbor)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
 [![Linting: Ruff](https://img.shields.io/badge/linting-Ruff-black?logo=ruff&logoColor=black)](https://github.com/astral-sh/ruff)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Pytest](https://img.shields.io/badge/testing-Pytest-red?logo=pytest&logoColor=red)](https://docs.pytest.org/)
-[![Material for MkDocs](https://img.shields.io/badge/docs-Material%20for%20MkDocs-yellow?logo=MaterialForMkDocs&logoColor=yellow)](https://spaceshaman.github.io/socketapi/)
+[![Material for MkDocs](https://img.shields.io/badge/docs-Material%20for%20MkDocs-yellow?logo=MaterialForMkDocs&logoColor=yellow)](https://spaceshaman.github.io/userharbor/)
 
 > **Project status:** UserHarbor is currently in an early stage of development.
 > The API may change frequently. The library is not ready for production use yet.
