@@ -55,11 +55,19 @@ https://github.com/userharbor
 The example below shows UserHarbor with the default integrations: `SQLAlchemyUserStore` and `SMTPEmailSender`.
 
 ```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from userharbor import UserHarbor
 from userharbor_sqlalchemy import SQLAlchemyUserStore
+from userharbor_sqlalchemy.models import UserHarborBase
 from userharbor_smtp import SMTPEmailSender
 
-store = SQLAlchemyUserStore.from_url("sqlite:///users.db")
+engine = create_engine("sqlite:///users.db")
+SessionLocal = sessionmaker(bind=engine)
+
+UserHarborBase.metadata.create_all(engine)
+
+store = SQLAlchemyUserStore(SessionLocal)
 
 email_sender = SMTPEmailSender(
     host="smtp.example.com",
