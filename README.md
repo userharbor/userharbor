@@ -298,7 +298,7 @@ The library should be easy to use in small projects, while still being possible 
 
 <!-- --8<-- [end:creed] -->
 
-<!-- --8<-- [start:custom-integrations] -->
+<!-- --8<-- [end:custom-integrations] -->
 
 ## Creating custom integrations
 
@@ -425,7 +425,7 @@ It should not decide about:
 
 These responsibilities belong to UserHarbor core.
 
-<!-- --8<-- [start:custom-integrations] -->
+<!-- --8<-- [end:custom-integrations] -->
 
 ## Project scope
 
