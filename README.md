@@ -1,6 +1,5 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/userharbor/userharbor/raw/master/docs/assets/logo-light.png">
-  <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/logo-dark.png" alt="socketapi">
+  <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/logo-full.png" alt="userharbor">
 </picture>
 
 [![GitHub License](https://img.shields.io/github/license/userharbor/userharbor)](https://github.com/userharbor/userharbor?tab=MIT-1-ov-file)

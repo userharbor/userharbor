@@ -8,8 +8,11 @@ on:
   workflow_dispatch:
 
 jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
   publish:
     runs-on: ubuntu-22.04
+    needs: tests
     environment:
       name: pypi
     permissions:
