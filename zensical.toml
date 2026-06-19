@@ -2,7 +2,7 @@
 site_name = "UserHarbor"
 site_description = "Framework agnostic user management system for Python applications."
 site_author = "SpaceShaman"
-site_url = "https://spaceshaman.github.io/userharbor"
+site_url = "https://userharbor.github.io/userharbor"
 repo_url = "https://github.com/userharbor/userharbor"
 edit_uri = "edit/master/docs/"
 copyright = """

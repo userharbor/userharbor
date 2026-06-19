@@ -760,7 +760,7 @@ wheels = [
 
 [[package]]
 name = "userharbor"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "pwdlib", extra = ["argon2"] },
@@ -788,10 +788,10 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "pwdlib", extras = ["argon2"], specifier = ">=0.3.0" },
-    { name = "userharbor-smtp", marker = "extra == 'all'", specifier = "==0.0.0" },
-    { name = "userharbor-smtp", marker = "extra == 'smtp'", specifier = "==0.0.0" },
-    { name = "userharbor-sqlalchemy", marker = "extra == 'all'", specifier = "==0.1.0" },
-    { name = "userharbor-sqlalchemy", marker = "extra == 'sqlalchemy'", specifier = "==0.1.0" },
+    { name = "userharbor-smtp", marker = "extra == 'all'", specifier = ">=0.1.0" },
+    { name = "userharbor-smtp", marker = "extra == 'smtp'", specifier = ">=0.1.0" },
+    { name = "userharbor-sqlalchemy", marker = "extra == 'all'", specifier = ">=0.1.0" },
+    { name = "userharbor-sqlalchemy", marker = "extra == 'sqlalchemy'", specifier = ">=0.1.0" },
 ]
 provides-extras = ["all", "smtp", "sqlalchemy"]
 
@@ -804,11 +804,15 @@ dev = [
 
 [[package]]
 name = "userharbor-smtp"
-version = "0.0.0"
+version = "0.1.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/02/fd/9ecb67535f8b895dc5f3cbe93d673937bc48d5027386dd0442931da9143c/userharbor_smtp-0.0.0.tar.gz", hash = "sha256:6487862512541a58f9e6918a13ef653e4f7db94eb6ffc69b2ec240c970a7af42", size = 762, upload-time = "2026-06-14T09:10:49.446Z" }
+dependencies = [
+    { name = "jinja2" },
+    { name = "userharbor" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/36/09/f39b683896507562bcc7c66e2dacebd8ce599c472a633b7d1c590fef3b14/userharbor_smtp-0.1.0.tar.gz", hash = "sha256:b5261f6343b10f7d2c12a0df801a0d49c50a22d35e630c0f303fdaa18936b4cb", size = 3407, upload-time = "2026-06-19T05:54:31.368Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e4/56/1f81f3a113c38694b7970670341e6b4bea28ef9f23b2c0487a0f23aa6c42/userharbor_smtp-0.0.0-py3-none-any.whl", hash = "sha256:999eb03e8f980a19bf091a75c0276ae3a924048d3b43b01dc4762ec027f46bbc", size = 1671, upload-time = "2026-06-14T09:10:48.708Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/cb/aad33944f09022edbff3a38ca82ff9f98443604fa973f74ac9fcc96fc1a9/userharbor_smtp-0.1.0-py3-none-any.whl", hash = "sha256:d4860c5ba553cecca596e708ab761eaec0b1a27c7260a203c7fa4119aa06665c", size = 5053, upload-time = "2026-06-19T05:54:30.431Z" },
 ]
 
 [[package]]
