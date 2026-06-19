@@ -207,6 +207,8 @@ Official integrations:
   provides a SQLAlchemy-based `UserStore`.
 * [`userharbor-smtp`](https://github.com/userharbor/userharbor-smtp) provides an
   SMTP-based `EmailSender`.
+* [`userharbor-fastapi`](https://github.com/userharbor/userharbor-fastapi) is in
+  preparation.
 
 See the [integrations documentation](https://userharbor.github.io/userharbor/integrations/)
 for detailed setup instructions.

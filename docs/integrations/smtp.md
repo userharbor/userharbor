@@ -1,3 +1,9 @@
+---
+title: SMTP Integration
+description: Send UserHarbor verification and password-reset emails through SMTP.
+icon: lucide/mail
+
+---
 # SMTP Integration
 
 `userharbor-smtp` provides `SMTPEmailSender`, an `EmailSender` implementation

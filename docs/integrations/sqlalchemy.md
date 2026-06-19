@@ -1,3 +1,9 @@
+---
+title: SQLAlchemy Integration
+description: Store UserHarbor users, sessions, and tokens with SQLAlchemy.
+icon: lucide/database
+
+---
 # SQLAlchemy Integration
 
 `userharbor-sqlalchemy` provides `SQLAlchemyUserStore`, a `UserStore`
