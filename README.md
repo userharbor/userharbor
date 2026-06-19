@@ -62,15 +62,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from userharbor import UserHarbor
 from userharbor_sqlalchemy import SQLAlchemyUserStore
-from userharbor_sqlalchemy.models import UserHarborBase
 from userharbor_smtp import SMTPEmailSender
 
 engine = create_engine("sqlite:///users.db")
 SessionLocal = sessionmaker(bind=engine)
 
-UserHarborBase.metadata.create_all(engine)
-
 store = SQLAlchemyUserStore(SessionLocal)
+store.metadata.create_all(engine)
 
 email_sender = SMTPEmailSender(
     host="smtp.example.com",

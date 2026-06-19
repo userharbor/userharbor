@@ -42,19 +42,8 @@ email_sender = SMTPEmailSender(
 )
 ```
 
-Pass the sender to `UserHarbor`:
-
-```python
-from userharbor import UserHarbor
-
-harbor = UserHarbor(
-    secret_key="your-secret-key",
-    store=store,
-    email_sender=email_sender,
-)
-```
-
-UserHarbor calls the sender when it needs to send:
+Pass the sender to `UserHarbor` as its `email_sender`. UserHarbor calls it when
+it needs to send:
 
 * email verification messages,
 * password reset messages.
@@ -125,35 +114,4 @@ Example `templates/emails/password_reset.html`:
 <p>Hello {{ username }},</p>
 <p>Use this token to reset your password:</p>
 <p><strong>{{ token }}</strong></p>
-```
-
-## Complete example
-
-```python
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from userharbor import UserHarbor
-from userharbor_sqlalchemy import SQLAlchemyUserStore
-from userharbor_sqlalchemy.models import UserHarborBase
-from userharbor_smtp import SMTPEmailSender
-
-engine = create_engine("sqlite:///users.db")
-SessionLocal = sessionmaker(bind=engine)
-UserHarborBase.metadata.create_all(engine)
-
-store = SQLAlchemyUserStore(SessionLocal)
-email_sender = SMTPEmailSender(
-    host="smtp.example.com",
-    port=587,
-    username="smtp-user",
-    password="smtp-password",
-    from_email="noreply@example.com",
-    from_name="UserHarbor",
-)
-
-harbor = UserHarbor(
-    secret_key="your-secret-key",
-    store=store,
-    email_sender=email_sender,
-)
 ```

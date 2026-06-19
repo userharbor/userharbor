@@ -47,67 +47,26 @@ application-specific authentication flows.
 ```python
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from userharbor import UserHarbor
 from userharbor_sqlalchemy import SQLAlchemyUserStore
-from userharbor_sqlalchemy.models import UserHarborBase
-
-
-class EmailSender:
-    def send_verification(
-        self,
-        username: str,
-        email: str,
-        verification_token: str,
-    ) -> None:
-        print(f"Send verification token to {email}: {verification_token}")
-
-    def send_password_reset(
-        self,
-        username: str,
-        email: str,
-        reset_token: str,
-    ) -> None:
-        print(f"Send password reset token to {email}: {reset_token}")
 
 
 engine = create_engine("sqlite:///users.db")
 SessionLocal = sessionmaker(bind=engine)
 
-UserHarborBase.metadata.create_all(engine)
-
 store = SQLAlchemyUserStore(SessionLocal)
-
-harbor = UserHarbor(
-    secret_key="your-secret-key",
-    store=store,
-    email_sender=EmailSender(),
-)
-
-harbor.register(
-    username="jane",
-    email="jane@example.com",
-    password="StrongPassword123!",
-)
-
-session_token = harbor.login(
-    username="jane",
-    password="StrongPassword123!",
-)
+store.metadata.create_all(engine)
 ```
 
-For real applications, replace the example `EmailSender` with an implementation
-that sends verification and password reset messages through your email provider.
-The official [SMTP integration](smtp.md) can be used for that.
+Pass `store` to `UserHarbor` as its `UserStore` implementation.
 
 ## Creating tables
 
-The adapter exposes `UserHarborBase`, a SQLAlchemy declarative base containing
-the UserHarbor tables:
+The adapter exposes SQLAlchemy metadata through the store:
 
 ```python
-from userharbor_sqlalchemy.models import UserHarborBase
+store = SQLAlchemyUserStore(SessionLocal)
 
-UserHarborBase.metadata.create_all(engine)
+store.metadata.create_all(engine)
 ```
 
 The built-in table names are:
@@ -119,6 +78,86 @@ The built-in table names are:
 
 In applications that use migrations, include these models in your migration
 metadata instead of calling `create_all()` at runtime.
+
+## Custom user model
+
+By default, the adapter creates and uses its own `userharbor_users` table. If
+your application already owns a user table, pass that SQLAlchemy model as
+`user_model`:
+
+```python
+from sqlalchemy import Boolean, String, create_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+from userharbor_sqlalchemy import SQLAlchemyUserStore
+
+
+class AppBase(DeclarativeBase):
+    pass
+
+
+class AppUser(AppBase):
+    __tablename__ = "app_users"
+
+    username: Mapped[str] = mapped_column(String(255), primary_key=True)
+    email: Mapped[str] = mapped_column(String(320), unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String(512))
+    verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    display_name: Mapped[str] = mapped_column(String(255), default="Anonymous")
+
+
+engine = create_engine("sqlite:///users.db")
+SessionLocal = sessionmaker(bind=engine)
+
+store = SQLAlchemyUserStore(
+    SessionLocal,
+    user_model=AppUser,
+)
+store.metadata.create_all(engine)
+```
+
+Custom user models must provide:
+
+* `username`,
+* `email`,
+* `password_hash`,
+* `verified`.
+
+The token tables are still created by the adapter. Their foreign keys point to
+the table configured through `user_model`. When a custom user model is provided,
+the adapter reuses that model's metadata, so `store.metadata` contains both the
+application user model and the generated UserHarbor token models.
+
+## Custom user mapping
+
+By default, SQLAlchemy user rows are mapped to `userharbor.interfaces.User`.
+Pass `user_mapper` when your application wants to return a richer public user
+type:
+
+```python
+from dataclasses import dataclass
+
+from userharbor.interfaces import User
+
+
+@dataclass
+class AppPublicUser(User):
+    display_name: str
+
+
+store = SQLAlchemyUserStore(
+    SessionLocal,
+    user_model=AppUser,
+    user_mapper=lambda user: AppPublicUser(
+        username=user.username,
+        email=user.email,
+        verified=user.verified,
+        display_name=user.display_name,
+    ),
+)
+```
+
+`user_mapper` is used by `get_user_by_username()` and `get_user_by_email()`.
+Token methods continue to return `UserToken` values.
 
 ## Sessions and transactions
 
@@ -135,33 +174,3 @@ account deletion.
 
 Successful transaction blocks are committed. Exceptions roll back changes from
 the block.
-
-## Using with SMTP
-
-```python
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from userharbor import UserHarbor
-from userharbor_sqlalchemy import SQLAlchemyUserStore
-from userharbor_sqlalchemy.models import UserHarborBase
-from userharbor_smtp import SMTPEmailSender
-
-engine = create_engine("sqlite:///users.db")
-SessionLocal = sessionmaker(bind=engine)
-UserHarborBase.metadata.create_all(engine)
-
-store = SQLAlchemyUserStore(SessionLocal)
-email_sender = SMTPEmailSender(
-    host="smtp.example.com",
-    port=587,
-    username="smtp-user",
-    password="smtp-password",
-    from_email="noreply@example.com",
-)
-
-harbor = UserHarbor(
-    secret_key="your-secret-key",
-    store=store,
-    email_sender=email_sender,
-)
-```
