@@ -32,20 +32,20 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/userharbor/userharbor"
+Documentation = "https://userharbor.github.io/userharbor"
 Homepage = "https://github.com/userharbor/userharbor"
 Repository = "https://github.com/userharbor/userharbor"
 
 [project.optional-dependencies]
 all = [
-  "userharbor-sqlalchemy==0.1.0",
-  "userharbor-smtp==0.0.0",
+  "userharbor-sqlalchemy>=0.1.0",
+  "userharbor-smtp>=0.1.0",
 ]
 smtp = [
-  "userharbor-smtp==0.0.0",
+  "userharbor-smtp>=0.1.0",
 ]
 sqlalchemy = [
-  "userharbor-sqlalchemy==0.1.0",
+  "userharbor-sqlalchemy>=0.1.0",
 ]
 
 [dependency-groups]
