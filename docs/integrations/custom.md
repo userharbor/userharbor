@@ -53,10 +53,19 @@ Implement `UserStore` when your adapter is responsible for persistence.
 
 ```python
 from contextlib import AbstractContextManager, nullcontext
-from userharbor.interfaces import CreateUserRequest, User, UserStore, UserToken
+from dataclasses import dataclass
+
+from userharbor.interfaces import CreateUserRequest, UserStore, UserToken
 
 
-class MyUserStore(UserStore):
+@dataclass
+class MyUser:
+    username: str
+    email: str
+    verified: bool
+
+
+class MyUserStore(UserStore[MyUser]):
     def transaction(self) -> AbstractContextManager[None]:
         return nullcontext()
 
@@ -69,10 +78,10 @@ class MyUserStore(UserStore):
     def delete_user(self, username: str) -> None:
         ...
 
-    def get_user_by_username(self, username: str) -> User | None:
+    def get_user_by_username(self, username: str) -> MyUser | None:
         ...
 
-    def get_user_by_email(self, email: str) -> User | None:
+    def get_user_by_email(self, email: str) -> MyUser | None:
         ...
 
     def get_email_verification(self, token_hash: str) -> UserToken | None:
@@ -124,6 +133,11 @@ A `UserStore` is responsible for:
 
 The store should never store raw tokens. UserHarbor passes token hashes to the
 store and keeps raw token handling in the core flow.
+
+The user type returned by `get_user_by_username()` and `get_user_by_email()` can
+be any object that provides `username`, `email`, and `verified`. Parameterize
+`UserStore` with that concrete type so `UserHarbor.get_current_user()` preserves
+it in type checkers.
 
 ## Transactions
 

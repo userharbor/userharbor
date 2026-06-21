@@ -129,18 +129,19 @@ application user model and the generated UserHarbor token models.
 
 ## Custom user mapping
 
-By default, SQLAlchemy user rows are mapped to `userharbor.interfaces.User`.
-Pass `user_mapper` when your application wants to return a richer public user
-type:
+By default, SQLAlchemy user rows are mapped to a small public user object with
+`username`, `email`, and `verified`. Pass `user_mapper` when your application
+wants to return a richer public user type:
 
 ```python
 from dataclasses import dataclass
 
-from userharbor.interfaces import User
-
 
 @dataclass
-class AppPublicUser(User):
+class AppPublicUser:
+    username: str
+    email: str
+    verified: bool
     display_name: str
 
 
