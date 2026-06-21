@@ -4,10 +4,16 @@ from dataclasses import dataclass
 from userharbor.interfaces import (
     CreateUserRequest,
     EmailSender,
-    User,
     UserStore,
     UserToken,
 )
+
+
+@dataclass
+class TestUser:
+    username: str
+    email: str
+    verified: bool
 
 
 @dataclass
@@ -47,7 +53,7 @@ class RegisteredUser:
     verification_token: str
 
 
-class InMemoryUserStore(UserStore):
+class InMemoryUserStore(UserStore[TestUser]):
     def __init__(self) -> None:
         self.users: dict[str, StoredUser] = {}
         self.email_verifications: dict[str, UserToken] = {}
@@ -104,20 +110,20 @@ class InMemoryUserStore(UserStore):
     def get_session(self, token_hash: str) -> UserToken | None:
         return self.sessions.get(token_hash)
 
-    def get_user_by_username(self, username: str) -> User | None:
+    def get_user_by_username(self, username: str) -> TestUser | None:
         stored_user = self.users.get(username)
         if stored_user is None:
             return None
-        return User(
+        return TestUser(
             username=stored_user.username,
             email=stored_user.email,
             verified=stored_user.verified,
         )
 
-    def get_user_by_email(self, email: str) -> User | None:
+    def get_user_by_email(self, email: str) -> TestUser | None:
         for stored_user in self.users.values():
             if stored_user.email == email:
-                return User(
+                return TestUser(
                     username=stored_user.username,
                     email=stored_user.email,
                     verified=stored_user.verified,

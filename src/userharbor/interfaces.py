@@ -1,7 +1,7 @@
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Protocol
+from typing import Protocol, TypeVar
 
 
 @dataclass
@@ -20,21 +20,23 @@ class CreateUserRequest:
     expires_at: datetime
 
 
-@dataclass
-class User:
+class UserLike(Protocol):
     username: str
     email: str
     verified: bool
 
 
-class UserStore(Protocol):
+UserT = TypeVar("UserT", bound=UserLike)
+
+
+class UserStore(Protocol[UserT]):
     def transaction(self) -> AbstractContextManager[None]: ...
 
     def create_user(self, user: CreateUserRequest) -> None: ...
     def set_user_verified(self, username: str) -> None: ...
     def delete_user(self, username: str) -> None: ...
-    def get_user_by_username(self, username: str) -> User | None: ...
-    def get_user_by_email(self, email: str) -> User | None: ...
+    def get_user_by_username(self, username: str) -> UserT | None: ...
+    def get_user_by_email(self, email: str) -> UserT | None: ...
 
     def get_email_verification(self, token_hash: str) -> UserToken | None: ...
     def set_email_verification(self, verification: UserToken) -> None: ...

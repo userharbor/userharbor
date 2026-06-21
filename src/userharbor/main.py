@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Generic
 
 from .exceptions import (
     InvalidEmailError,
@@ -11,7 +12,7 @@ from .exceptions import (
     UserAlreadyVerifiedError,
     WeakPasswordError,
 )
-from .interfaces import CreateUserRequest, EmailSender, User, UserStore, UserToken
+from .interfaces import CreateUserRequest, EmailSender, UserStore, UserT, UserToken
 from .security import (
     generate_token,
     hash_password,
@@ -22,9 +23,9 @@ from .utils import utcnow
 from .validations import is_email_valid, is_password_strong, is_username_valid
 
 
-class UserHarbor:
+class UserHarbor(Generic[UserT]):
     def __init__(
-        self, secret_key: str, store: UserStore, email_sender: EmailSender
+        self, secret_key: str, store: UserStore[UserT], email_sender: EmailSender
     ) -> None:
         self._secret_key = secret_key
         self._store = store
@@ -110,7 +111,7 @@ class UserHarbor:
         except InvalidSessionTokenError:
             return False
 
-    def get_current_user(self, session_token: str) -> User:
+    def get_current_user(self, session_token: str) -> UserT:
         session = self._get_valid_session(session_token)
         if user := self._store.get_user_by_username(session.username):
             return user
