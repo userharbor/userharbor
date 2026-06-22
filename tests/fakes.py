@@ -1,5 +1,6 @@
 from contextlib import nullcontext
 from dataclasses import dataclass
+from datetime import datetime
 
 from userharbor.interfaces import (
     CreateUserRequest,
@@ -142,6 +143,9 @@ class InMemoryUserStore(UserStore[TestUser]):
         for session_token_hash in session_token_hashes:
             del self.sessions[session_token_hash]
         session_token_hashes.clear()
+
+    def refresh_session(self, token_hash: str, new_expires_at: datetime) -> None:
+        self.sessions[token_hash].expires_at = new_expires_at
 
     def get_password_reset(self, token_hash: str) -> UserToken | None:
         return self.password_resets.get(token_hash)
