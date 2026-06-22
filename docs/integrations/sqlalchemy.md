@@ -39,6 +39,8 @@ The adapter persists:
 * sessions,
 * password reset tokens.
 
+It also updates session expiration when UserHarbor refreshes an active session.
+
 It does not send emails, expose HTTP endpoints, or implement
 application-specific authentication flows.
 
@@ -175,3 +177,6 @@ account deletion.
 
 Successful transaction blocks are committed. Exceptions roll back changes from
 the block.
+
+Session refreshes are persisted by the store when UserHarbor's sliding session
+expiration is enabled.

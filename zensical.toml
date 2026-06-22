@@ -11,6 +11,7 @@ The project is released under the MIT license.
 nav = [
   { "Home" = "index.md" },
   { "Architecture" = "architecture.md" },
+  { "Token expiration" = "token-expiration.md" },
   { "Project creed" = "creed.md" },
   { "Project scope" = "scope.md" },
   { "Integrations" = [

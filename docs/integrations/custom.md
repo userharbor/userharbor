@@ -54,6 +54,7 @@ Implement `UserStore` when your adapter is responsible for persistence.
 ```python
 from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass
+from datetime import datetime
 
 from userharbor.interfaces import CreateUserRequest, UserStore, UserToken
 
@@ -105,6 +106,9 @@ class MyUserStore(UserStore[MyUser]):
     def remove_all_sessions(self, username: str) -> None:
         ...
 
+    def refresh_session(self, token_hash: str, new_expires_at: datetime) -> None:
+        ...
+
     def get_password_hash(self, username: str) -> str:
         ...
 
@@ -129,6 +133,7 @@ A `UserStore` is responsible for:
 * storing session token hashes,
 * storing password reset token hashes,
 * removing sessions and tokens,
+* updating session expiration when sliding session refresh is enabled,
 * providing transaction boundaries for multi-step updates.
 
 The store should never store raw tokens. UserHarbor passes token hashes to the
@@ -208,7 +213,7 @@ For `UserStore`, cover:
 
 * user creation and lookup by username and email,
 * email verification token storage and removal,
-* session creation, lookup, removal, and remove-all behavior,
+* session creation, lookup, expiration refresh, removal, and remove-all behavior,
 * password hash lookup and update,
 * password reset token storage and removal,
 * transaction commit and rollback behavior.

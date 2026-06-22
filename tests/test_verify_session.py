@@ -50,7 +50,7 @@ def test_verify_session_refreshes_session_near_expiration(
         store,
         email_sender,
         session_token_ttl=session_token_ttl,
-        sesion_refresh_threshold=timedelta(days=7),
+        session_refresh_threshold=timedelta(days=7),
     )
     store.sessions[session_token_hash].expires_at = utcnow() + timedelta(days=1)
 
@@ -72,7 +72,7 @@ def test_verify_session_does_not_refresh_session_outside_threshold(
         store,
         email_sender,
         session_token_ttl=timedelta(days=10),
-        sesion_refresh_threshold=timedelta(days=7),
+        session_refresh_threshold=timedelta(days=7),
     )
     original_expires_at = utcnow() + timedelta(days=8)
     store.sessions[session_token_hash].expires_at = original_expires_at
@@ -91,7 +91,7 @@ def test_verify_session_does_not_refresh_session_when_threshold_is_none(
         store,
         email_sender,
         session_token_ttl=timedelta(days=10),
-        sesion_refresh_threshold=None,
+        session_refresh_threshold=None,
     )
     original_expires_at = utcnow() + timedelta(days=1)
     store.sessions[session_token_hash].expires_at = original_expires_at

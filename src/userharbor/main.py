@@ -32,7 +32,7 @@ class UserHarbor(Generic[UserT]):
         email_verification_token_ttl: timedelta = timedelta(hours=24),
         password_reset_token_ttl: timedelta = timedelta(hours=1),
         session_token_ttl: timedelta = timedelta(days=30),
-        sesion_refresh_threshold: timedelta | None = timedelta(days=7),
+        session_refresh_threshold: timedelta | None = timedelta(days=7),
     ) -> None:
         self._secret_key = secret_key
         self._store = store
@@ -40,7 +40,7 @@ class UserHarbor(Generic[UserT]):
         self._email_verification_token_ttl = email_verification_token_ttl
         self._password_reset_token_ttl = password_reset_token_ttl
         self._session_token_ttl = session_token_ttl
-        self._sesion_refresh_threshold = sesion_refresh_threshold
+        self._session_refresh_threshold = session_refresh_threshold
 
     def register(self, username: str, email: str, password: str) -> None:
         if not is_username_valid(username):
@@ -200,8 +200,8 @@ class UserHarbor(Generic[UserT]):
             self._store.remove_session(session.token_hash)
             raise InvalidSessionTokenError("Session token expired")
         if (
-            self._sesion_refresh_threshold
-            and session.expires_at - now < self._sesion_refresh_threshold
+            self._session_refresh_threshold
+            and session.expires_at - now < self._session_refresh_threshold
         ):
             refreshed_expires_at = now + self._session_token_ttl
             self._store.refresh_session(session.token_hash, refreshed_expires_at)
