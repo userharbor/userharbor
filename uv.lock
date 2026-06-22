@@ -760,7 +760,7 @@ wheels = [
 
 [[package]]
 name = "userharbor"
-version = "0.2.1"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "pwdlib", extra = ["argon2"] },
@@ -790,8 +790,8 @@ requires-dist = [
     { name = "pwdlib", extras = ["argon2"], specifier = ">=0.3.0" },
     { name = "userharbor-smtp", marker = "extra == 'all'", specifier = ">=0.1.0" },
     { name = "userharbor-smtp", marker = "extra == 'smtp'", specifier = ">=0.1.0" },
-    { name = "userharbor-sqlalchemy", marker = "extra == 'all'", specifier = ">=0.2.1" },
-    { name = "userharbor-sqlalchemy", marker = "extra == 'sqlalchemy'", specifier = ">=0.2.1" },
+    { name = "userharbor-sqlalchemy", marker = "extra == 'all'", specifier = ">=0.3.0" },
+    { name = "userharbor-sqlalchemy", marker = "extra == 'sqlalchemy'", specifier = ">=0.3.0" },
 ]
 provides-extras = ["all", "smtp", "sqlalchemy"]
 
@@ -817,15 +817,15 @@ wheels = [
 
 [[package]]
 name = "userharbor-sqlalchemy"
-version = "0.2.1"
+version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sqlalchemy" },
     { name = "userharbor" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/64/85/297040bafc0046a835b10ec0b8b09dbca52001c8c6af019f70a80ba1542b/userharbor_sqlalchemy-0.2.1.tar.gz", hash = "sha256:415749f7e9b74aaa664c4b66681cbf539d9a5b65c138669c8524ea848c86ccc7", size = 4580, upload-time = "2026-06-21T16:24:57.309Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8e/ba/66bdaa386465f73eda040a64c5f104956a863c3f2f61fcae644b41ff7c32/userharbor_sqlalchemy-0.3.0.tar.gz", hash = "sha256:0ae09f28dea37cdb160fa121e0536d335cd63dbbfa87a7a4b962ba73a114a32b", size = 4612, upload-time = "2026-06-22T06:45:05.93Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/2e/0c829e26faa00034dd4db823a29c62eb33739b357f195c8563415f9434b4/userharbor_sqlalchemy-0.2.1-py3-none-any.whl", hash = "sha256:bbf6904a261a321ffa1bda7f3ebca49507ab6104f7b44729132d86d516bb44e6", size = 6160, upload-time = "2026-06-21T16:24:56.37Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/22/9124ee1bda01d05cf4d4119911a8d6f9ae4d318198bcff9870523b8d9af6/userharbor_sqlalchemy-0.3.0-py3-none-any.whl", hash = "sha256:cd6817ed4886b631976d2460c251fb42033db8cd02ee3a130d0da71a769cc12d", size = 6199, upload-time = "2026-06-22T06:45:05.048Z" },
 ]
 
 [[package]]
