@@ -25,11 +25,20 @@ from .validations import is_email_valid, is_password_strong, is_username_valid
 
 class UserHarbor(Generic[UserT]):
     def __init__(
-        self, secret_key: str, store: UserStore[UserT], email_sender: EmailSender
+        self,
+        secret_key: str,
+        store: UserStore[UserT],
+        email_sender: EmailSender,
+        email_verification_token_ttl: timedelta = timedelta(hours=24),
+        password_reset_token_ttl: timedelta = timedelta(hours=1),
+        session_token_ttl: timedelta = timedelta(days=30),
     ) -> None:
         self._secret_key = secret_key
         self._store = store
         self._email_sender = email_sender
+        self._email_verification_token_ttl = email_verification_token_ttl
+        self._password_reset_token_ttl = password_reset_token_ttl
+        self._session_token_ttl = session_token_ttl
 
     def register(self, username: str, email: str, password: str) -> None:
         if not is_username_valid(username):
@@ -48,7 +57,7 @@ class UserHarbor(Generic[UserT]):
                 verification_token_hash=hash_token(
                     verification_token, self._secret_key
                 ),
-                expires_at=utcnow() + timedelta(hours=24),
+                expires_at=utcnow() + self._email_verification_token_ttl,
             )
         )
         self._email_sender.send_verification(username, email, verification_token)
@@ -77,7 +86,7 @@ class UserHarbor(Generic[UserT]):
             UserToken(
                 username=user.username,
                 token_hash=hash_token(verification_token, self._secret_key),
-                expires_at=utcnow() + timedelta(hours=24),
+                expires_at=utcnow() + self._email_verification_token_ttl,
             )
         )
         self._email_sender.send_verification(user.username, email, verification_token)
@@ -99,7 +108,7 @@ class UserHarbor(Generic[UserT]):
             UserToken(
                 username=username,
                 token_hash=hash_token(session_token, self._secret_key),
-                expires_at=utcnow() + timedelta(days=30),
+                expires_at=utcnow() + self._session_token_ttl,
             )
         )
         return session_token
@@ -134,7 +143,7 @@ class UserHarbor(Generic[UserT]):
             UserToken(
                 username=user.username,
                 token_hash=hash_token(reset_token, self._secret_key),
-                expires_at=utcnow() + timedelta(hours=1),
+                expires_at=utcnow() + self._password_reset_token_ttl,
             )
         )
         self._email_sender.send_password_reset(user.username, email, reset_token)
