@@ -19,7 +19,7 @@ from .security import (
     hash_token,
     verify_password,
 )
-from .utils import utcnow
+from .utils import as_aware_utc, utcnow
 from .validations import is_email_valid, is_password_strong, is_username_valid
 
 
@@ -71,7 +71,7 @@ class UserHarbor(Generic[UserT]):
             )
             if not verification:
                 raise InvalidVerificationTokenError("Invalid verification token")
-            if utcnow() > verification.expires_at:
+            if utcnow() > as_aware_utc(verification.expires_at):
                 self._store.remove_email_verification(verification.token_hash)
                 raise InvalidVerificationTokenError("Verification token expired")
             self._store.remove_email_verification(verification.token_hash)
@@ -157,7 +157,7 @@ class UserHarbor(Generic[UserT]):
             password_reset = self._store.get_password_reset(reset_token_hash)
             if not password_reset:
                 raise InvalidPasswordResetTokenError("Invalid password reset token")
-            if utcnow() > password_reset.expires_at:
+            if utcnow() > as_aware_utc(password_reset.expires_at):
                 self._store.remove_password_reset(password_reset.token_hash)
                 raise InvalidPasswordResetTokenError("Password reset token expired")
             if not is_password_strong(new_password):
@@ -196,12 +196,13 @@ class UserHarbor(Generic[UserT]):
         if not session:
             raise InvalidSessionTokenError("Invalid session token")
         now = utcnow()
-        if session.expires_at < now:
+        session_expires_at = as_aware_utc(session.expires_at)
+        if session_expires_at < now:
             self._store.remove_session(session.token_hash)
             raise InvalidSessionTokenError("Session token expired")
         if (
             self._session_refresh_threshold
-            and session.expires_at - now < self._session_refresh_threshold
+            and session_expires_at - now < self._session_refresh_threshold
         ):
             refreshed_expires_at = now + self._session_token_ttl
             self._store.refresh_session(session.token_hash, refreshed_expires_at)

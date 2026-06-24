@@ -22,6 +22,17 @@ def test_verify_session_accepts_valid_session_token(userharbor, logged_in_user) 
     assert userharbor.verify_session(session_token)
 
 
+def test_verify_session_accepts_naive_utc_expiration(
+    userharbor, store, logged_in_user
+) -> None:
+    registered_user, session_token = logged_in_user
+    session_token_hash = store.users[registered_user.username].session_token_hashes[-1]
+    session = store.sessions[session_token_hash]
+    session.expires_at = session.expires_at.replace(tzinfo=None)
+
+    assert userharbor.verify_session(session_token)
+
+
 def test_verify_session_rejects_invalid_session_token(
     userharbor, logged_in_user
 ) -> None:

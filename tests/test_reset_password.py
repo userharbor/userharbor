@@ -26,6 +26,23 @@ def test_reset_password_updates_password_hash(
     assert verify_password(NEW_PASSWORD, new_password_hash)
 
 
+def test_reset_password_accepts_naive_utc_expiration(
+    userharbor, store, email_sender, register_user
+) -> None:
+    registered_user = register_user()
+    userharbor.send_password_reset(registered_user.email)
+    reset_token = email_sender.sent_password_resets[0].reset_token
+    reset_token_hash = store.users[registered_user.username].password_reset_token_hash
+    assert reset_token_hash is not None
+    reset = store.password_resets[reset_token_hash]
+    reset.expires_at = reset.expires_at.replace(tzinfo=None)
+
+    userharbor.reset_password(NEW_PASSWORD, reset_token)
+
+    assert store.users[registered_user.username].password_reset_token_hash is None
+    assert store.get_password_reset(reset_token_hash) is None
+
+
 def test_reset_password_removes_sessions_and_reset_token(
     userharbor, store, email_sender, verified_user
 ) -> None:

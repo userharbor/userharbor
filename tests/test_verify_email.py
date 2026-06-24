@@ -18,6 +18,20 @@ def test_verify_marks_user_verified(userharbor, store, register_user) -> None:
     assert store.get_email_verification(verification_token_hash) is None
 
 
+def test_verify_accepts_naive_utc_expiration(userharbor, store, register_user) -> None:
+    registered_user = register_user()
+    verification_token_hash = store.users[
+        registered_user.username
+    ].email_verification_token_hash
+    verification = store.email_verifications[verification_token_hash]
+    verification.expires_at = verification.expires_at.replace(tzinfo=None)
+
+    userharbor.verify_email(registered_user.verification_token)
+
+    assert store.users[registered_user.username].verified
+    assert store.get_email_verification(verification_token_hash) is None
+
+
 def test_verify_rejects_invalid_verification_token(
     userharbor, store, register_user
 ) -> None:
