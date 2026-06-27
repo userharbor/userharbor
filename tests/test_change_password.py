@@ -2,7 +2,7 @@ import pytest
 from conftest import VALID_PASSWORD
 
 from userharbor.exceptions import (
-    InvalidPasswordError,
+    InvalidCredentialsError,
     InvalidSessionTokenError,
     WeakPasswordError,
 )
@@ -82,8 +82,14 @@ def test_change_password_rejects_invalid_session_token(
             "wrong-session-token",
         )
 
-    assert store.users[registered_user.username].password_hash == password_hash_before_change
-    assert store.users[registered_user.username].session_token_hashes == sessions_before_change
+    assert (
+        store.users[registered_user.username].password_hash
+        == password_hash_before_change
+    )
+    assert (
+        store.users[registered_user.username].session_token_hashes
+        == sessions_before_change
+    )
 
 
 def test_change_password_rejects_invalid_old_password(
@@ -95,15 +101,21 @@ def test_change_password_rejects_invalid_old_password(
     assert session_token_hashes is not None
     sessions_before_change = session_token_hashes.copy()
 
-    with pytest.raises(InvalidPasswordError, match="Invalid old password"):
+    with pytest.raises(InvalidCredentialsError, match="Invalid old password"):
         userharbor.change_password(
             "Wrongpass1!",
             NEW_PASSWORD,
             session_token,
         )
 
-    assert store.users[registered_user.username].password_hash == password_hash_before_change
-    assert store.users[registered_user.username].session_token_hashes == sessions_before_change
+    assert (
+        store.users[registered_user.username].password_hash
+        == password_hash_before_change
+    )
+    assert (
+        store.users[registered_user.username].session_token_hashes
+        == sessions_before_change
+    )
 
 
 def test_change_password_rejects_weak_new_password(
@@ -122,5 +134,11 @@ def test_change_password_rejects_weak_new_password(
             session_token,
         )
 
-    assert store.users[registered_user.username].password_hash == password_hash_before_change
-    assert store.users[registered_user.username].session_token_hashes == sessions_before_change
+    assert (
+        store.users[registered_user.username].password_hash
+        == password_hash_before_change
+    )
+    assert (
+        store.users[registered_user.username].session_token_hashes
+        == sessions_before_change
+    )

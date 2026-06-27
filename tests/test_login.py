@@ -4,7 +4,7 @@ import pytest
 from conftest import SECRET_KEY
 
 from userharbor.exceptions import (
-    InvalidPasswordError,
+    InvalidCredentialsError,
     UnverifiedUserError,
 )
 from userharbor.security import verify_token
@@ -31,14 +31,14 @@ def test_login_creates_session_for_verified_user(
 
 
 def test_login_rejects_invalid_password(userharbor, store, verified_user) -> None:
-    with pytest.raises(InvalidPasswordError, match="Invalid password"):
+    with pytest.raises(InvalidCredentialsError, match="Invalid username or password"):
         userharbor.login(verified_user.username, "Wrongpass1!")
 
     assert store.users[verified_user.username].session_token_hashes == []
 
 
 def test_login_rejects_invalid_username(userharbor, store, verified_user) -> None:
-    with pytest.raises(InvalidPasswordError, match="Invalid username or password"):
+    with pytest.raises(InvalidCredentialsError, match="Invalid username or password"):
         userharbor.login("unknown", verified_user.password)
 
     assert store.users[verified_user.username].session_token_hashes == []

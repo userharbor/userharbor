@@ -18,7 +18,7 @@ class InvalidVerificationTokenError(UserHarborError):
     pass
 
 
-class InvalidPasswordError(UserHarborError):
+class InvalidCredentialsError(UserHarborError):
     pass
 
 

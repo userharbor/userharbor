@@ -2,8 +2,8 @@ from datetime import timedelta
 from typing import Generic
 
 from .exceptions import (
+    InvalidCredentialsError,
     InvalidEmailError,
-    InvalidPasswordError,
     InvalidPasswordResetTokenError,
     InvalidSessionTokenError,
     InvalidUsernameError,
@@ -96,11 +96,11 @@ class UserHarbor(Generic[UserT]):
     def login(self, username: str, password: str) -> str:
         user = self._store.get_user_by_username(username)
         if not user:
-            raise InvalidPasswordError("Invalid username or password")
+            raise InvalidCredentialsError("Invalid username or password")
 
         password_hash = self._store.get_password_hash(username)
         if not verify_password(password, password_hash):
-            raise InvalidPasswordError("Invalid password")
+            raise InvalidCredentialsError("Invalid username or password")
 
         if not user.verified:
             raise UnverifiedUserError("User email not verified")
@@ -175,7 +175,7 @@ class UserHarbor(Generic[UserT]):
             if not verify_password(
                 old_password, self._store.get_password_hash(session.username)
             ):
-                raise InvalidPasswordError("Invalid old password")
+                raise InvalidCredentialsError("Invalid old password")
             if not is_password_strong(new_password):
                 raise WeakPasswordError("Weak new password")
             self._store.set_password_hash(session.username, new_password_hash)
@@ -187,7 +187,7 @@ class UserHarbor(Generic[UserT]):
             if not verify_password(
                 password, self._store.get_password_hash(session.username)
             ):
-                raise InvalidPasswordError("Invalid password")
+                raise InvalidCredentialsError("Invalid password")
             self._store.remove_all_sessions(session.username)
             self._store.delete_user(session.username)
 

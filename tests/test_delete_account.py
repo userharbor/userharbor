@@ -1,6 +1,6 @@
 import pytest
 
-from userharbor.exceptions import InvalidPasswordError, InvalidSessionTokenError
+from userharbor.exceptions import InvalidCredentialsError, InvalidSessionTokenError
 
 
 def test_delete_account_removes_sessions_and_user(
@@ -57,7 +57,7 @@ def test_delete_account_rejects_invalid_password(
     registered_user, session_token = logged_in_user
     users_before_delete = store.users.copy()
 
-    with pytest.raises(InvalidPasswordError, match="Invalid password"):
+    with pytest.raises(InvalidCredentialsError, match="Invalid password"):
         userharbor.delete_account(
             "Wrongpass1!",
             session_token,
