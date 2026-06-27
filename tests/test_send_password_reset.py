@@ -37,7 +37,7 @@ def test_send_password_reset_stores_token_hash_and_sends_email(
     assert password_reset.expires_at <= after_send + timedelta(hours=1)
 
 
-def test_send_password_reset_rejects_invalid_email(
+def test_send_password_reset_ignores_unknown_email(
     userharbor, store, email_sender, register_user
 ) -> None:
     registered_user = register_user()

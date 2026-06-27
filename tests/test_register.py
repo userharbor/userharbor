@@ -73,6 +73,33 @@ def test_register_rejects_invalid_email(userharbor, store, email_sender) -> None
     assert email_sender.sent_verifications == []
 
 
+def test_register_rejects_existing_username(
+    userharbor, store, email_sender, register_user
+) -> None:
+    registered_user = register_user()
+
+    with pytest.raises(InvalidUsernameError, match="Username already exists"):
+        userharbor.register(
+            registered_user.username,
+            "other@example.com",
+            VALID_PASSWORD,
+        )
+
+    assert len(store.users) == 1
+    assert len(email_sender.sent_verifications) == 1
+
+
+def test_register_ignores_existing_email(
+    userharbor, store, email_sender, register_user
+) -> None:
+    registered_user = register_user()
+
+    userharbor.register("otheruser", registered_user.email, VALID_PASSWORD)
+
+    assert list(store.users) == [registered_user.username]
+    assert len(email_sender.sent_verifications) == 1
+
+
 @pytest.mark.parametrize(
     "password",
     [

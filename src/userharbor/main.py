@@ -48,6 +48,10 @@ class UserHarbor(Generic[UserT]):
             raise InvalidEmailError("Invalid email")
         if not is_password_strong(password):
             raise WeakPasswordError("Weak password")
+        if self._store.get_user_by_username(username):
+            raise InvalidUsernameError("Username already exists")
+        if self._store.get_user_by_email(email):
+            return
 
         verification_token = generate_token()
         self._store.create_user(

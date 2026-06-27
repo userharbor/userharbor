@@ -42,7 +42,7 @@ def test_resend_verification_replaces_token_hash_and_sends_email(
     assert verification.expires_at <= after_resend + timedelta(hours=24)
 
 
-def test_resend_verification_rejects_invalid_email(
+def test_resend_verification_ignores_unknown_email(
     userharbor, store, email_sender, register_user
 ) -> None:
     registered_user = register_user()
