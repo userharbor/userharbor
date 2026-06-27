@@ -1,9 +1,7 @@
 from datetime import timedelta
 
-import pytest
 from conftest import SECRET_KEY
 
-from userharbor.exceptions import InvalidEmailError
 from userharbor.security import verify_token
 from userharbor.utils import utcnow
 
@@ -44,8 +42,7 @@ def test_send_password_reset_rejects_invalid_email(
 ) -> None:
     registered_user = register_user()
 
-    with pytest.raises(InvalidEmailError, match="Invalid email"):
-        userharbor.send_password_reset("wrong@example.com")
+    userharbor.send_password_reset("wrong@example.com")
 
     assert store.users[registered_user.username].password_reset_token_hash is None
     assert email_sender.sent_password_resets == []

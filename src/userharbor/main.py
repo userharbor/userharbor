@@ -9,7 +9,6 @@ from .exceptions import (
     InvalidUsernameError,
     InvalidVerificationTokenError,
     UnverifiedUserError,
-    UserAlreadyVerifiedError,
     WeakPasswordError,
 )
 from .interfaces import CreateUserRequest, EmailSender, UserStore, UserT, UserToken
@@ -79,10 +78,8 @@ class UserHarbor(Generic[UserT]):
 
     def resend_verification(self, email: str) -> None:
         user = self._store.get_user_by_email(email)
-        if not user:
-            raise InvalidEmailError("Invalid email")
-        if user.verified:
-            raise UserAlreadyVerifiedError("User already verified")
+        if not user or user.verified:
+            return
         verification_token = generate_token()
         self._store.set_email_verification(
             UserToken(
@@ -139,7 +136,7 @@ class UserHarbor(Generic[UserT]):
     def send_password_reset(self, email: str) -> None:
         user = self._store.get_user_by_email(email)
         if not user:
-            raise InvalidEmailError("Invalid email")
+            return
         reset_token = generate_token()
         self._store.set_password_reset(
             UserToken(
