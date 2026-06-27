@@ -1,9 +1,9 @@
 ---
-title: Project creed
+title: Design principles
 description: Design principles that guide UserHarbor development.
 icon: lucide/scroll-text
 
 ---
-# Project creed
+# Design principles
 
---8<-- "README.md:creed"
+--8<-- "README.md:design-principles"

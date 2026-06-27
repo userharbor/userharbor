@@ -152,7 +152,7 @@ The full documentation is available at
 Useful pages:
 
 * [Architecture](https://userharbor.github.io/userharbor/architecture/)
-* [Project scope](https://userharbor.github.io/userharbor/scope/)
+* [Design principles](https://userharbor.github.io/userharbor/design-principles/)
 * [Integrations](https://userharbor.github.io/userharbor/integrations/)
 * [Contributing](https://userharbor.github.io/userharbor/Development/contributing/)
 
@@ -213,9 +213,9 @@ for detailed setup instructions.
 
 <!-- --8<-- [end:integrations] -->
 
-## Project creed
+## Design principles
 
-<!-- --8<-- [start:creed] -->
+<!-- --8<-- [start:design-principles] -->
 
 UserHarbor should remain simple, predictable, and easy to integrate.
 
@@ -233,6 +233,25 @@ The main library is responsible for basic user account operations:
 * user deletion.
 
 Unusual business-specific cases should be implemented outside the library.
+
+UserHarbor does not try to solve every identity-related problem.
+
+The following are outside the scope of the core library:
+
+* OAuth,
+* OpenID Connect,
+* social login,
+* 2FA/MFA,
+* roles and permissions,
+* ACL,
+* organizations and teams,
+* admin panels,
+* ready-made HTTP endpoints,
+* ready-made HTML views,
+* integrations with specific frameworks.
+
+Such features may be created as separate libraries or integrations, but they
+should not complicate the core project.
 
 UserHarbor should not become an application framework.
 
@@ -274,32 +293,7 @@ New features should be added carefully.
 The library should be easy to use in small projects, while still being possible
 to extend in larger applications.
 
-<!-- --8<-- [end:creed] -->
-
-## Project scope
-
-<!-- --8<-- [start:scope] -->
-
-UserHarbor does not try to solve every identity-related problem.
-
-The following are outside the scope of the core library:
-
-* OAuth,
-* OpenID Connect,
-* social login,
-* 2FA/MFA,
-* roles and permissions,
-* ACL,
-* organizations and teams,
-* admin panels,
-* ready-made HTTP endpoints,
-* ready-made HTML views,
-* integrations with specific frameworks.
-
-Such features may be created as separate libraries or integrations, but they
-should not complicate the core project.
-
-<!-- --8<-- [end:scope] -->
+<!-- --8<-- [end:design-principles] -->
 
 ## Changelog
 

@@ -12,8 +12,7 @@ nav = [
   { "Home" = "index.md" },
   { "Architecture" = "architecture.md" },
   { "Token expiration" = "token-expiration.md" },
-  { "Project creed" = "creed.md" },
-  { "Project scope" = "scope.md" },
+  { "Design principles" = "design-principles.md" },
   { "Integrations" = [
     "integrations/index.md",
     { "SQLAlchemy" = "integrations/sqlalchemy.md" },
