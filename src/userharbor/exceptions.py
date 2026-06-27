@@ -26,10 +26,6 @@ class UnverifiedUserError(UserHarborError):
     pass
 
 
-class UserAlreadyVerifiedError(UserHarborError):
-    pass
-
-
 class InvalidSessionTokenError(UserHarborError):
     pass
 
