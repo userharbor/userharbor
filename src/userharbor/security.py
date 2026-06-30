@@ -16,7 +16,7 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 def generate_token() -> str:
-    return token_urlsafe(16)
+    return token_urlsafe(32)
 
 
 def hash_token(token: str, secret_key: str) -> str:
