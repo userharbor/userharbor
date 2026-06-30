@@ -13,12 +13,12 @@ protocols.
 
 Common integration types include:
 
-* database or ORM-backed `UserStore` implementations,
-* email-provider `EmailSender` implementations,
+* database or ORM-backed `UserStore` implementations
+* email-provider `EmailSender` implementations
 * framework packages that wire UserHarbor into routes, dependencies, or request
-  handling,
+  handling
 * provider adapters for services such as SendGrid, Resend, Mailgun, Redis, or
-  MongoDB.
+  MongoDB
 
 Before creating a new adapter, review the official implementations:
 
@@ -54,10 +54,10 @@ Implement `UserStore` when your adapter is responsible for persistence.
 `UserStore` is one required contract, but it is composed from smaller protocols
 for readability:
 
-* `UserAccountStore`,
-* `TokenStore`,
-* `RoleStore`,
-* `PermissionStore`.
+* `UserAccountStore`
+* `TokenStore`
+* `RoleStore`
+* `PermissionStore`
 
 Adapter packages should still pass one store object to `UserHarbor`.
 
@@ -188,17 +188,17 @@ class MyUserStore(UserStore[MyUser]):
 
 A `UserStore` is responsible for:
 
-* creating and deleting users,
-* storing password hashes,
-* storing email verification token hashes,
-* storing session token hashes,
-* storing password reset token hashes,
-* storing role and permission definitions,
-* storing role-to-permission assignments,
-* storing user-to-role assignments,
-* removing sessions and tokens,
-* updating session expiration when sliding session refresh is enabled,
-* providing transaction boundaries for multi-step updates.
+* creating and deleting users
+* storing password hashes
+* storing email verification token hashes
+* storing session token hashes
+* storing password reset token hashes
+* storing role and permission definitions
+* storing role-to-permission assignments
+* storing user-to-role assignments
+* removing sessions and tokens
+* updating session expiration when sliding session refresh is enabled
+* providing transaction boundaries for multi-step updates
 
 The store should never store raw tokens. UserHarbor passes token hashes to the
 store and keeps raw token handling in the core flow.
@@ -268,11 +268,11 @@ instead of moving domain behavior into the framework package.
 
 A framework adapter may provide:
 
-* dependency helpers,
-* route or router factories,
-* request-to-command mapping,
-* response models,
-* examples for configuring stores and email senders.
+* dependency helpers
+* route or router factories
+* request-to-command mapping
+* response models
+* examples for configuring stores and email senders
 
 It should avoid hard-coding one database or email provider unless that is the
 explicit purpose of the package. Prefer accepting a configured `UserHarbor`
@@ -285,28 +285,28 @@ Custom integrations should include tests for the contract they implement.
 
 For `UserStore`, cover:
 
-* user creation and lookup by username and email,
-* email verification token storage and removal,
-* session creation, lookup, expiration refresh, removal, and remove-all behavior,
-* password hash lookup and update,
-* password reset token storage and removal,
-* role creation, lookup, listing, and deletion,
-* permission creation, lookup, listing, and deletion,
-* role-to-permission grant and revoke behavior,
-* user-to-role grant and revoke behavior,
-* derived user permissions from assigned roles,
-* transaction commit and rollback behavior.
+* user creation and lookup by username and email
+* email verification token storage and removal
+* session creation, lookup, expiration refresh, removal, and remove-all behavior
+* password hash lookup and update
+* password reset token storage and removal
+* role creation, lookup, listing, and deletion
+* permission creation, lookup, listing, and deletion
+* role-to-permission grant and revoke behavior
+* user-to-role grant and revoke behavior
+* derived user permissions from assigned roles
+* transaction commit and rollback behavior
 
 For `EmailSender`, cover:
 
-* verification messages,
-* password reset messages,
-* email-verified messages,
-* password-changed messages,
-* account-deleted messages,
-* subject and sender configuration,
-* template rendering, if templates are supported,
-* provider authentication or API calls using fakes.
+* verification messages
+* password reset messages
+* email-verified messages
+* password-changed messages
+* account-deleted messages
+* subject and sender configuration
+* template rendering, if templates are supported
+* provider authentication or API calls using fakes
 
 ## Public API
 

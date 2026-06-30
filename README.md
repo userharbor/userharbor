@@ -22,15 +22,15 @@
 
 Its goal is to provide a simple, stable, and framework-independent interface for common user-related operations:
 
-* user registration,
-* email verification,
-* login,
-* session management,
-* logout from one or all sessions,
-* password change,
-* password reset,
-* account deletion,
-* role and permission checks.
+* user registration
+* email verification
+* login
+* session management
+* logout from one or all sessions
+* password change
+* password reset
+* account deletion
+* role and permission checks
 
 UserHarbor is not a web framework. It does not provide routers, views, or HTTP endpoints.
 Instead, it exposes a simple domain-level API that can be integrated with FastAPI, Flask, Django, Litestar, CLI applications, or any other environment.
@@ -200,8 +200,8 @@ implementation or email delivery implementation.
 
 Instead, it relies on two protocols:
 
-* `UserStore`,
-* `EmailSender`.
+* `UserStore`
+* `EmailSender`
 
 This allows you to use official adapters or build your own integration.
 
@@ -218,11 +218,11 @@ Those responsibilities are handled by adapters that implement the core
 Official integrations:
 
 * [`userharbor-sqlalchemy`](https://github.com/userharbor/userharbor-sqlalchemy)
-  provides a SQLAlchemy-based `UserStore`.
+  provides a SQLAlchemy-based `UserStore`
 * [`userharbor-smtp`](https://github.com/userharbor/userharbor-smtp) provides an
-  SMTP-based `EmailSender`.
+  SMTP-based `EmailSender`
 * [`userharbor-fastapi`](https://github.com/userharbor/userharbor-fastapi) is in
-  preparation.
+  preparation
 
 See the [integrations documentation](https://userharbor.github.io/userharbor/integrations/)
 for detailed setup instructions.
@@ -239,15 +239,15 @@ UserHarbor should remain simple, predictable, and easy to integrate.
 
 The main library is responsible for basic user account operations:
 
-* registration,
-* email verification,
-* login,
-* session management,
-* logout,
-* password reset,
-* password change,
-* user deletion,
-* simple role-based access control.
+* registration
+* email verification
+* login
+* session management
+* logout
+* password reset
+* password change
+* user deletion
+* simple role-based access control
 
 Unusual business-specific cases should be implemented outside the library.
 
@@ -255,18 +255,18 @@ UserHarbor does not try to solve every identity-related problem.
 
 The following are outside the scope of the core library:
 
-* OAuth,
-* OpenID Connect,
-* social login,
-* 2FA/MFA,
-* ACL,
-* organizations and teams,
-* ownership and resource policies,
-* policy engines,
-* admin panels,
-* ready-made HTTP endpoints,
-* ready-made HTML views,
-* integrations with specific frameworks.
+* OAuth
+* OpenID Connect
+* social login
+* 2FA/MFA
+* ACL
+* organizations and teams
+* ownership and resource policies
+* policy engines
+* admin panels
+* ready-made HTTP endpoints
+* ready-made HTML views
+* integrations with specific frameworks
 
 Such features may be created as separate libraries or integrations, but they
 should not complicate the core project.
@@ -299,10 +299,10 @@ providers should be developed as separate packages.
 After the public API becomes stable, further core development should focus
 mainly on:
 
-* improving security,
-* improving reliability,
-* improving performance,
-* maintaining compatibility.
+* improving security
+* improving reliability
+* improving performance
+* maintaining compatibility
 
 New features should be added carefully.
 
@@ -330,13 +330,13 @@ The project is in an early stage of development and its API is not stable yet.
 
 The most welcome areas of contribution are:
 
-* public API design,
-* security improvements,
-* tests,
-* documentation,
-* `UserStore` implementations,
-* `EmailSender` implementations,
-* framework integrations as separate packages.
+* public API design
+* security improvements
+* tests
+* documentation
+* `UserStore` implementations
+* `EmailSender` implementations
+* framework integrations as separate packages
 
 Before starting work on a storage or email integration, review the official
 adapters:

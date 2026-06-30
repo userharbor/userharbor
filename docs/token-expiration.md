@@ -13,9 +13,9 @@ rejected and removed when UserHarbor encounters them.
 
 The default token lifetimes are:
 
-* email verification tokens: 24 hours,
-* password reset tokens: 1 hour,
-* session tokens: 30 days.
+* email verification tokens: 24 hours
+* password reset tokens: 1 hour
+* session tokens: 30 days
 
 These defaults are intentionally conservative and can be changed per
 `UserHarbor` instance.

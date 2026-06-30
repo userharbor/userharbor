@@ -11,11 +11,11 @@ basic authorization without a framework-specific policy engine.
 
 The core library manages:
 
-* role definitions,
-* permission definitions,
-* permissions granted to roles,
-* roles granted to users,
-* role and permission checks for active sessions.
+* role definitions
+* permission definitions
+* permissions granted to roles
+* roles granted to users
+* role and permission checks for active sessions
 
 UserHarbor does not decide how your application maps permissions to routes,
 views, commands, or business objects. Framework adapters and application code
@@ -146,9 +146,9 @@ is allowed.
 
 They raise:
 
-* `InvalidSessionTokenError` when the session is missing, invalid, or expired,
+* `InvalidSessionTokenError` when the session is missing, invalid, or expired
 * `PermissionDeniedError` when the session is valid but the user does not have
-  the requested role or permission.
+  the requested role or permission
 
 This distinction lets framework integrations map invalid sessions to `401
 Unauthorized` and denied permissions to `403 Forbidden`.

@@ -1,6 +1,6 @@
 ---
 title: SQLAlchemy Integration
-description: Store UserHarbor users, sessions, and tokens with SQLAlchemy.
+description: Store UserHarbor users, sessions, tokens, roles, and permissions with SQLAlchemy.
 icon: lucide/database
 
 ---
@@ -33,11 +33,15 @@ pip install "userharbor[sqlalchemy]"
 
 The adapter persists:
 
-* users,
-* password hashes,
-* email verification tokens,
-* sessions,
-* password reset tokens.
+* users
+* password hashes
+* email verification tokens
+* sessions
+* password reset tokens
+* roles
+* permissions
+* user-to-role assignments
+* role-to-permission assignments
 
 It also updates session expiration when UserHarbor refreshes an active session.
 
@@ -73,10 +77,14 @@ store.metadata.create_all(engine)
 
 The built-in table names are:
 
-* `userharbor_users`,
-* `userharbor_email_verifications`,
-* `userharbor_sessions`,
-* `userharbor_password_resets`.
+* `userharbor_users`
+* `userharbor_email_verifications`
+* `userharbor_sessions`
+* `userharbor_password_resets`
+* `userharbor_roles`
+* `userharbor_permissions`
+* `userharbor_user_roles`
+* `userharbor_role_permissions`
 
 In applications that use migrations, include these models in your migration
 metadata instead of calling `create_all()` at runtime.
@@ -119,15 +127,16 @@ store.metadata.create_all(engine)
 
 Custom user models must provide:
 
-* `username`,
-* `email`,
-* `password_hash`,
-* `verified`.
+* `username`
+* `email`
+* `password_hash`
+* `verified`
 
-The token tables are still created by the adapter. Their foreign keys point to
-the table configured through `user_model`. When a custom user model is provided,
-the adapter reuses that model's metadata, so `store.metadata` contains both the
-application user model and the generated UserHarbor token models.
+The token and role assignment tables are still created by the adapter. Their
+user foreign keys point to the table configured through `user_model`. When a
+custom user model is provided, the adapter reuses that model's metadata, so
+`store.metadata` contains both the application user model and the generated
+UserHarbor token, role, permission, and assignment models.
 
 ## Custom user mapping
 
@@ -162,6 +171,25 @@ store = SQLAlchemyUserStore(
 `user_mapper` is used by `get_user_by_username()` and `get_user_by_email()`.
 Token methods continue to return `UserToken` values.
 
+## Roles and permissions
+
+`SQLAlchemyUserStore` implements the complete role and permission persistence
+contract required by UserHarbor:
+
+```python
+harbor.roles.create("admin")
+harbor.permissions.create("users.delete")
+harbor.roles.grant_permission("admin", "users.delete")
+harbor.grant_role("jane", "admin")
+```
+
+Roles and permissions are stored separately from users. User permissions are
+derived through the `userharbor_user_roles` and `userharbor_role_permissions`
+tables.
+
+Deleting a role removes that role from users and removes its permission
+assignments. Deleting a permission removes it from every role.
+
 ## Sessions and transactions
 
 `SQLAlchemyUserStore` receives a session factory:
@@ -172,8 +200,12 @@ store = SQLAlchemyUserStore(SessionLocal)
 
 Each store method opens a session when no UserHarbor transaction is active.
 `SQLAlchemyUserStore.transaction()` is used by UserHarbor for multi-step
-operations such as email verification, password reset, password change, and
-account deletion.
+operations such as email verification, password reset, password change, account
+deletion, and other flows that need related writes to commit or roll back
+together.
+
+Role and permission methods use the same session handling as the account and
+token methods.
 
 Successful transaction blocks are committed. Exceptions roll back changes from
 the block.
