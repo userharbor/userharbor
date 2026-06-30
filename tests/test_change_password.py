@@ -11,8 +11,8 @@ from userharbor.security import verify_password
 NEW_PASSWORD = "NewStrongpass1!"
 
 
-def test_change_password_updates_password_hash(
-    userharbor, store, logged_in_user
+def test_change_password_updates_password_hash_and_sends_password_changed_notification(
+    userharbor, store, email_sender, logged_in_user
 ) -> None:
     registered_user, session_token = logged_in_user
     old_password_hash = store.users[registered_user.username].password_hash
@@ -34,6 +34,10 @@ def test_change_password_updates_password_hash(
     assert store.users[registered_user.username].session_token_hashes == []
     assert not userharbor.verify_session(session_token)
     assert not userharbor.verify_session(other_session_token)
+    assert len(email_sender.sent_password_changed) == 1
+    sent_password_changed = email_sender.sent_password_changed[0]
+    assert sent_password_changed.username == registered_user.username
+    assert sent_password_changed.email == registered_user.email
 
 
 def test_change_password_updates_session_owner_password(
@@ -67,7 +71,7 @@ def test_change_password_updates_session_owner_password(
 
 
 def test_change_password_rejects_invalid_session_token(
-    userharbor, store, logged_in_user
+    userharbor, store, email_sender, logged_in_user
 ) -> None:
     registered_user, _ = logged_in_user
     password_hash_before_change = store.users[registered_user.username].password_hash
@@ -90,10 +94,11 @@ def test_change_password_rejects_invalid_session_token(
         store.users[registered_user.username].session_token_hashes
         == sessions_before_change
     )
+    assert email_sender.sent_password_changed == []
 
 
 def test_change_password_rejects_invalid_old_password(
-    userharbor, store, logged_in_user
+    userharbor, store, email_sender, logged_in_user
 ) -> None:
     registered_user, session_token = logged_in_user
     password_hash_before_change = store.users[registered_user.username].password_hash
@@ -116,10 +121,11 @@ def test_change_password_rejects_invalid_old_password(
         store.users[registered_user.username].session_token_hashes
         == sessions_before_change
     )
+    assert email_sender.sent_password_changed == []
 
 
 def test_change_password_rejects_weak_new_password(
-    userharbor, store, logged_in_user
+    userharbor, store, email_sender, logged_in_user
 ) -> None:
     registered_user, session_token = logged_in_user
     password_hash_before_change = store.users[registered_user.username].password_hash
@@ -142,3 +148,4 @@ def test_change_password_rejects_weak_new_password(
         store.users[registered_user.username].session_token_hashes
         == sessions_before_change
     )
+    assert email_sender.sent_password_changed == []

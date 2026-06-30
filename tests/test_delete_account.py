@@ -3,8 +3,8 @@ import pytest
 from userharbor.exceptions import InvalidCredentialsError, InvalidSessionTokenError
 
 
-def test_delete_account_removes_sessions_and_user(
-    userharbor, store, logged_in_user
+def test_delete_account_removes_sessions_and_user_and_sends_account_deleted_notification(
+    userharbor, store, email_sender, logged_in_user
 ) -> None:
     registered_user, session_token = logged_in_user
 
@@ -14,6 +14,10 @@ def test_delete_account_removes_sessions_and_user(
     )
 
     assert registered_user.username not in store.users
+    assert len(email_sender.sent_account_deleted) == 1
+    sent_account_deleted = email_sender.sent_account_deleted[0]
+    assert sent_account_deleted.username == registered_user.username
+    assert sent_account_deleted.email == registered_user.email
 
 
 def test_delete_account_removes_session_owner(
@@ -37,7 +41,7 @@ def test_delete_account_removes_session_owner(
 
 
 def test_delete_account_rejects_invalid_session_token(
-    userharbor, store, logged_in_user
+    userharbor, store, email_sender, logged_in_user
 ) -> None:
     registered_user, _ = logged_in_user
     users_before_delete = store.users.copy()
@@ -49,10 +53,11 @@ def test_delete_account_rejects_invalid_session_token(
         )
 
     assert store.users == users_before_delete
+    assert email_sender.sent_account_deleted == []
 
 
 def test_delete_account_rejects_invalid_password(
-    userharbor, store, logged_in_user
+    userharbor, store, email_sender, logged_in_user
 ) -> None:
     registered_user, session_token = logged_in_user
     users_before_delete = store.users.copy()
@@ -64,3 +69,4 @@ def test_delete_account_rejects_invalid_password(
         )
 
     assert store.users == users_before_delete
+    assert email_sender.sent_account_deleted == []

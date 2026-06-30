@@ -10,7 +10,7 @@ from userharbor.utils import utcnow
 NEW_PASSWORD = "ResetStrongpass1!"
 
 
-def test_reset_password_updates_password_hash(
+def test_reset_password_updates_password_hash_and_sends_password_changed_notification(
     userharbor, store, email_sender, register_user
 ) -> None:
     registered_user = register_user()
@@ -24,6 +24,10 @@ def test_reset_password_updates_password_hash(
     assert new_password_hash != old_password_hash
     assert not verify_password(VALID_PASSWORD, new_password_hash)
     assert verify_password(NEW_PASSWORD, new_password_hash)
+    assert len(email_sender.sent_password_changed) == 1
+    sent_password_changed = email_sender.sent_password_changed[0]
+    assert sent_password_changed.username == registered_user.username
+    assert sent_password_changed.email == registered_user.email
 
 
 def test_reset_password_accepts_naive_utc_expiration(
@@ -62,10 +66,14 @@ def test_reset_password_removes_sessions_and_reset_token(
     assert store.password_resets == {}
     assert not userharbor.verify_session(first_session_token)
     assert not userharbor.verify_session(second_session_token)
+    assert len(email_sender.sent_password_changed) == 1
+    sent_password_changed = email_sender.sent_password_changed[0]
+    assert sent_password_changed.username == verified_user.username
+    assert sent_password_changed.email == verified_user.email
 
 
 def test_reset_password_rejects_invalid_reset_token(
-    userharbor, store, register_user
+    userharbor, store, email_sender, register_user
 ) -> None:
     registered_user = register_user()
     userharbor.send_password_reset(registered_user.email)
@@ -85,6 +93,7 @@ def test_reset_password_rejects_invalid_reset_token(
         store.users[registered_user.username].password_reset_token_hash
         == reset_token_hash
     )
+    assert email_sender.sent_password_changed == []
 
 
 def test_reset_password_rejects_expired_reset_token(
@@ -109,6 +118,7 @@ def test_reset_password_rejects_expired_reset_token(
     )
     assert store.users[registered_user.username].password_reset_token_hash is None
     assert store.get_password_reset(reset_token_hash) is None
+    assert email_sender.sent_password_changed == []
 
 
 def test_reset_password_rejects_weak_new_password(
@@ -131,3 +141,4 @@ def test_reset_password_rejects_weak_new_password(
         store.users[registered_user.username].password_reset_token_hash
         == reset_token_hash
     )
+    assert email_sender.sent_password_changed == []

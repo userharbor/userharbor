@@ -47,6 +47,12 @@ class SentPasswordReset:
 
 
 @dataclass
+class SentAccountNotification:
+    username: str
+    email: str
+
+
+@dataclass
 class RegisteredUser:
     username: str
     email: str
@@ -169,6 +175,9 @@ class RecordingEmailSender(EmailSender):
     def __init__(self) -> None:
         self.sent_verifications: list[SentVerification] = []
         self.sent_password_resets: list[SentPasswordReset] = []
+        self.sent_email_verified: list[SentAccountNotification] = []
+        self.sent_password_changed: list[SentAccountNotification] = []
+        self.sent_account_deleted: list[SentAccountNotification] = []
 
     def send_verification(
         self, username: str, email: str, verification_token: str
@@ -187,5 +196,29 @@ class RecordingEmailSender(EmailSender):
                 username=username,
                 email=email,
                 reset_token=reset_token,
+            )
+        )
+
+    def send_email_verified(self, username: str, email: str) -> None:
+        self.sent_email_verified.append(
+            SentAccountNotification(
+                username=username,
+                email=email,
+            )
+        )
+
+    def send_password_changed(self, username: str, email: str) -> None:
+        self.sent_password_changed.append(
+            SentAccountNotification(
+                username=username,
+                email=email,
+            )
+        )
+
+    def send_account_deleted(self, username: str, email: str) -> None:
+        self.sent_account_deleted.append(
+            SentAccountNotification(
+                username=username,
+                email=email,
             )
         )

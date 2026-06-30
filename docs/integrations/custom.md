@@ -181,6 +181,15 @@ class MyEmailSender(EmailSender):
         reset_token: str,
     ) -> None:
         ...
+
+    def send_email_verified(self, username: str, email: str) -> None:
+        ...
+
+    def send_password_changed(self, username: str, email: str) -> None:
+        ...
+
+    def send_account_deleted(self, username: str, email: str) -> None:
+        ...
 ```
 
 An `EmailSender` should only send messages. It should not decide whether a token
@@ -222,6 +231,9 @@ For `EmailSender`, cover:
 
 * verification messages,
 * password reset messages,
+* email-verified messages,
+* password-changed messages,
+* account-deleted messages,
 * subject and sender configuration,
 * template rendering, if templates are supported,
 * provider authentication or API calls using fakes.

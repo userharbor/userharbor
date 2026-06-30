@@ -79,6 +79,9 @@ class UserHarbor(Generic[UserT]):
                 raise InvalidVerificationTokenError("Verification token expired")
             self._store.remove_email_verification(verification.token_hash)
             self._store.set_user_verified(verification.username)
+            user = self._store.get_user_by_username(verification.username)
+        if user:
+            self._email_sender.send_email_verified(user.username, user.email)
 
     def resend_verification(self, email: str) -> None:
         user = self._store.get_user_by_email(email)
@@ -163,9 +166,12 @@ class UserHarbor(Generic[UserT]):
                 raise InvalidPasswordResetTokenError("Password reset token expired")
             if not is_password_strong(new_password):
                 raise WeakPasswordError("Weak new password")
+            user = self._store.get_user_by_username(password_reset.username)
             self._store.set_password_hash(password_reset.username, new_password_hash)
             self._store.remove_all_sessions(password_reset.username)
             self._store.remove_password_reset(password_reset.token_hash)
+        if user:
+            self._email_sender.send_password_changed(user.username, user.email)
 
     def change_password(
         self, old_password: str, new_password: str, session_token: str
@@ -179,8 +185,11 @@ class UserHarbor(Generic[UserT]):
                 raise InvalidCredentialsError("Invalid old password")
             if not is_password_strong(new_password):
                 raise WeakPasswordError("Weak new password")
+            user = self._store.get_user_by_username(session.username)
             self._store.set_password_hash(session.username, new_password_hash)
             self._store.remove_all_sessions(session.username)
+        if user:
+            self._email_sender.send_password_changed(user.username, user.email)
 
     def delete_account(self, password: str, session_token: str) -> None:
         with self._store.transaction():
@@ -189,8 +198,11 @@ class UserHarbor(Generic[UserT]):
                 password, self._store.get_password_hash(session.username)
             ):
                 raise InvalidCredentialsError("Invalid password")
+            user = self._store.get_user_by_username(session.username)
             self._store.remove_all_sessions(session.username)
             self._store.delete_user(session.username)
+        if user:
+            self._email_sender.send_account_deleted(user.username, user.email)
 
     def _get_valid_session(self, session_token: str) -> UserToken:
         session = self._store.get_session(hash_token(session_token, self._secret_key))
