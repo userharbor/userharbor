@@ -26,10 +26,13 @@ class StoredUser:
     verified: bool = False
     password_reset_token_hash: str | None = None
     session_token_hashes: list[str] | None = None
+    roles: set[str] | None = None
 
     def __post_init__(self) -> None:
         if self.session_token_hashes is None:
             self.session_token_hashes = []
+        if self.roles is None:
+            self.roles = set()
 
 
 @dataclass
@@ -66,6 +69,9 @@ class InMemoryUserStore(UserStore[TestUser]):
         self.email_verifications: dict[str, UserToken] = {}
         self.sessions: dict[str, UserToken] = {}
         self.password_resets: dict[str, UserToken] = {}
+        self.roles: set[str] = set()
+        self.permissions: set[str] = set()
+        self.role_permissions: dict[str, set[str]] = {}
 
     def transaction(self):
         return nullcontext()
@@ -169,6 +175,69 @@ class InMemoryUserStore(UserStore[TestUser]):
 
     def delete_user(self, username: str) -> None:
         del self.users[username]
+
+    def create_role(self, role: str) -> None:
+        self.roles.add(role)
+        self.role_permissions[role] = set()
+
+    def delete_role(self, role: str) -> None:
+        self.roles.remove(role)
+        self.role_permissions.pop(role, None)
+        for user in self.users.values():
+            assert user.roles is not None
+            user.roles.discard(role)
+
+    def list_roles(self) -> set[str]:
+        return self.roles.copy()
+
+    def role_exists(self, role: str) -> bool:
+        return role in self.roles
+
+    def create_permission(self, permission: str) -> None:
+        self.permissions.add(permission)
+
+    def delete_permission(self, permission: str) -> None:
+        self.permissions.remove(permission)
+        for permissions in self.role_permissions.values():
+            permissions.discard(permission)
+
+    def list_permissions(self) -> set[str]:
+        return self.permissions.copy()
+
+    def permission_exists(self, permission: str) -> bool:
+        return permission in self.permissions
+
+    def grant_permission_to_role(self, role: str, permission: str) -> None:
+        self.role_permissions[role].add(permission)
+
+    def revoke_permission_from_role(self, role: str, permission: str) -> None:
+        self.role_permissions[role].discard(permission)
+
+    def get_role_permissions(self, role: str) -> set[str]:
+        return self.role_permissions[role].copy()
+
+    def grant_role_to_user(self, username: str, role: str) -> None:
+        roles = self.users[username].roles
+        assert roles is not None
+        roles.add(role)
+
+    def revoke_role_from_user(self, username: str, role: str) -> None:
+        roles = self.users[username].roles
+        assert roles is not None
+        roles.discard(role)
+
+    def get_user_roles(self, username: str) -> set[str]:
+        roles = self.users[username].roles
+        assert roles is not None
+        return roles.copy()
+
+    def get_user_permissions(self, username: str) -> set[str]:
+        permissions = set()
+        roles = self.users[username].roles
+        assert roles is not None
+        for role in roles:
+            permissions.update(self.role_permissions[role])
+        return permissions
 
 
 class RecordingEmailSender(EmailSender):

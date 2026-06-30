@@ -29,7 +29,8 @@ Its goal is to provide a simple, stable, and framework-independent interface for
 * logout from one or all sessions,
 * password change,
 * password reset,
-* account deletion.
+* account deletion,
+* role and permission checks.
 
 UserHarbor is not a web framework. It does not provide routers, views, or HTTP endpoints.
 Instead, it exposes a simple domain-level API that can be integrated with FastAPI, Flask, Django, Litestar, CLI applications, or any other environment.
@@ -108,6 +109,19 @@ if harbor.verify_session(session_token):
 current_user = harbor.get_current_user(session_token)
 print(current_user.username)
 
+# Create roles and permissions
+harbor.roles.create("admin")
+harbor.permissions.create("users.delete")
+harbor.roles.grant_permission("admin", "users.delete")
+harbor.grant_role("jane", "admin")
+
+# Check access
+if harbor.has_permission(session_token, "users.delete"):
+    print("User can delete users")
+
+current_admin = harbor.require_role(session_token, "admin")
+print(current_admin.username)
+
 # Logout
 harbor.logout(session_token)
 
@@ -152,6 +166,7 @@ The full documentation is available at
 Useful pages:
 
 * [Architecture](https://userharbor.github.io/userharbor/architecture/)
+* [Roles and permissions](https://userharbor.github.io/userharbor/roles-and-permissions/)
 * [Design principles](https://userharbor.github.io/userharbor/design-principles/)
 * [Integrations](https://userharbor.github.io/userharbor/integrations/)
 * [Contributing](https://userharbor.github.io/userharbor/Development/contributing/)
@@ -168,12 +183,13 @@ UserHarbor core
     ├── login logic
     ├── session logic
     ├── password reset logic
+    ├── role and permission checks
     ├── data validation
     ├── token generation
     └── password and token hashing
 
 UserStore
-    └── any implementation responsible for storing users, sessions, and tokens
+    └── any implementation responsible for storing users, sessions, tokens, roles, and permissions
 
 EmailSender
     └── any implementation responsible for sending email messages
@@ -230,7 +246,8 @@ The main library is responsible for basic user account operations:
 * logout,
 * password reset,
 * password change,
-* user deletion.
+* user deletion,
+* simple role-based access control.
 
 Unusual business-specific cases should be implemented outside the library.
 
@@ -242,9 +259,10 @@ The following are outside the scope of the core library:
 * OpenID Connect,
 * social login,
 * 2FA/MFA,
-* roles and permissions,
 * ACL,
 * organizations and teams,
+* ownership and resource policies,
+* policy engines,
 * admin panels,
 * ready-made HTTP endpoints,
 * ready-made HTML views,

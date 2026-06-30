@@ -51,6 +51,16 @@ email sender, and an email adapter does not need database code.
 
 Implement `UserStore` when your adapter is responsible for persistence.
 
+`UserStore` is one required contract, but it is composed from smaller protocols
+for readability:
+
+* `UserAccountStore`,
+* `TokenStore`,
+* `RoleStore`,
+* `PermissionStore`.
+
+Adapter packages should still pass one store object to `UserHarbor`.
+
 ```python
 from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass
@@ -85,6 +95,14 @@ class MyUserStore(UserStore[MyUser]):
     def get_user_by_email(self, email: str) -> MyUser | None:
         ...
 
+    def get_password_hash(self, username: str) -> str:
+        ...
+
+    def set_password_hash(self, username: str, password_hash: str) -> None:
+        ...
+
+    # TokenStore
+
     def get_email_verification(self, token_hash: str) -> UserToken | None:
         ...
 
@@ -109,12 +127,6 @@ class MyUserStore(UserStore[MyUser]):
     def refresh_session(self, token_hash: str, new_expires_at: datetime) -> None:
         ...
 
-    def get_password_hash(self, username: str) -> str:
-        ...
-
-    def set_password_hash(self, username: str, password_hash: str) -> None:
-        ...
-
     def get_password_reset(self, token_hash: str) -> UserToken | None:
         ...
 
@@ -122,6 +134,55 @@ class MyUserStore(UserStore[MyUser]):
         ...
 
     def remove_password_reset(self, token_hash: str) -> None:
+        ...
+
+    # RoleStore
+
+    def create_role(self, role: str) -> None:
+        ...
+
+    def delete_role(self, role: str) -> None:
+        ...
+
+    def list_roles(self) -> set[str]:
+        ...
+
+    def role_exists(self, role: str) -> bool:
+        ...
+
+    def grant_role_to_user(self, username: str, role: str) -> None:
+        ...
+
+    def revoke_role_from_user(self, username: str, role: str) -> None:
+        ...
+
+    def get_user_roles(self, username: str) -> set[str]:
+        ...
+
+    # PermissionStore
+
+    def create_permission(self, permission: str) -> None:
+        ...
+
+    def delete_permission(self, permission: str) -> None:
+        ...
+
+    def list_permissions(self) -> set[str]:
+        ...
+
+    def permission_exists(self, permission: str) -> bool:
+        ...
+
+    def grant_permission_to_role(self, role: str, permission: str) -> None:
+        ...
+
+    def revoke_permission_from_role(self, role: str, permission: str) -> None:
+        ...
+
+    def get_role_permissions(self, role: str) -> set[str]:
+        ...
+
+    def get_user_permissions(self, username: str) -> set[str]:
         ...
 ```
 
@@ -132,6 +193,9 @@ A `UserStore` is responsible for:
 * storing email verification token hashes,
 * storing session token hashes,
 * storing password reset token hashes,
+* storing role and permission definitions,
+* storing role-to-permission assignments,
+* storing user-to-role assignments,
 * removing sessions and tokens,
 * updating session expiration when sliding session refresh is enabled,
 * providing transaction boundaries for multi-step updates.
@@ -148,7 +212,8 @@ it in type checkers.
 
 `transaction()` should return a context manager. UserHarbor uses it around
 operations that update multiple related records, such as email verification,
-password reset, password change, and account deletion.
+password reset, password change, account deletion, and role or permission
+assignment.
 
 For stores that support transactions, commit when the block finishes
 successfully and roll back when an exception is raised.
@@ -225,6 +290,11 @@ For `UserStore`, cover:
 * session creation, lookup, expiration refresh, removal, and remove-all behavior,
 * password hash lookup and update,
 * password reset token storage and removal,
+* role creation, lookup, listing, and deletion,
+* permission creation, lookup, listing, and deletion,
+* role-to-permission grant and revoke behavior,
+* user-to-role grant and revoke behavior,
+* derived user permissions from assigned roles,
 * transaction commit and rollback behavior.
 
 For `EmailSender`, cover:

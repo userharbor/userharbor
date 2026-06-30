@@ -12,6 +12,7 @@ nav = [
   { "Home" = "index.md" },
   { "Architecture" = "architecture.md" },
   { "Token expiration" = "token-expiration.md" },
+  { "Roles and permissions" = "roles-and-permissions.md" },
   { "Design principles" = "design-principles.md" },
   { "Integrations" = [
     "integrations/index.md",

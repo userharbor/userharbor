@@ -5,13 +5,19 @@ from .exceptions import (
     InvalidCredentialsError,
     InvalidEmailError,
     InvalidPasswordResetTokenError,
+    InvalidPermissionError,
+    InvalidRoleError,
     InvalidSessionTokenError,
     InvalidUsernameError,
     InvalidVerificationTokenError,
+    PermissionDeniedError,
+    UnknownPermissionError,
+    UnknownRoleError,
     UnverifiedUserError,
     WeakPasswordError,
 )
 from .interfaces import CreateUserRequest, EmailSender, UserStore, UserT, UserToken
+from .rbac import PermissionManager, RoleManager
 from .security import (
     generate_token,
     hash_password,
@@ -19,7 +25,13 @@ from .security import (
     verify_password,
 )
 from .utils import as_aware_utc, utcnow
-from .validations import is_email_valid, is_password_strong, is_username_valid
+from .validations import (
+    is_email_valid,
+    is_password_strong,
+    is_permission_valid,
+    is_role_valid,
+    is_username_valid,
+)
 
 
 class UserHarbor(Generic[UserT]):
@@ -40,6 +52,8 @@ class UserHarbor(Generic[UserT]):
         self._password_reset_token_ttl = password_reset_token_ttl
         self._session_token_ttl = session_token_ttl
         self._session_refresh_threshold = session_refresh_threshold
+        self.roles = RoleManager(store)
+        self.permissions = PermissionManager(store)
 
     def register(self, username: str, email: str, password: str) -> None:
         if not is_username_valid(username):
@@ -204,6 +218,56 @@ class UserHarbor(Generic[UserT]):
         if user:
             self._email_sender.send_account_deleted(user.username, user.email)
 
+    def grant_role(self, username: str, role: str) -> None:
+        self._require_user(username)
+        self._require_role(role)
+        self._store.grant_role_to_user(username, role)
+
+    def revoke_role(self, username: str, role: str) -> None:
+        self._require_user(username)
+        self._require_role(role)
+        self._store.revoke_role_from_user(username, role)
+
+    def get_roles(self, username: str) -> set[str]:
+        self._require_user(username)
+        return self._store.get_user_roles(username)
+
+    def get_permissions(self, username: str) -> set[str]:
+        self._require_user(username)
+        return self._store.get_user_permissions(username)
+
+    def has_role(self, session_token: str, role: str) -> bool:
+        self._require_role(role)
+        try:
+            session = self._get_valid_session(session_token)
+        except InvalidSessionTokenError:
+            return False
+        return role in self._store.get_user_roles(session.username)
+
+    def has_permission(self, session_token: str, permission: str) -> bool:
+        self._validate_permission(permission)
+        try:
+            session = self._get_valid_session(session_token)
+        except InvalidSessionTokenError:
+            return False
+        return permission in self._store.get_user_permissions(session.username)
+
+    def require_role(self, session_token: str, role: str) -> UserT:
+        self._require_role(role)
+        session = self._get_valid_session(session_token)
+        user = self._get_session_user(session.username)
+        if role not in self._store.get_user_roles(session.username):
+            raise PermissionDeniedError("Permission denied")
+        return user
+
+    def require_permission(self, session_token: str, permission: str) -> UserT:
+        self._validate_permission(permission)
+        session = self._get_valid_session(session_token)
+        user = self._get_session_user(session.username)
+        if permission not in self._store.get_user_permissions(session.username):
+            raise PermissionDeniedError("Permission denied")
+        return user
+
     def _get_valid_session(self, session_token: str) -> UserToken:
         session = self._store.get_session(hash_token(session_token, self._secret_key))
         if not session:
@@ -221,3 +285,29 @@ class UserHarbor(Generic[UserT]):
             self._store.refresh_session(session.token_hash, refreshed_expires_at)
             session.expires_at = refreshed_expires_at
         return session
+
+    def _get_session_user(self, username: str) -> UserT:
+        if user := self._store.get_user_by_username(username):
+            return user
+        raise InvalidSessionTokenError("Invalid session token")
+
+    def _require_user(self, username: str) -> None:
+        if not is_username_valid(username):
+            raise InvalidUsernameError("Invalid username")
+        if not self._store.get_user_by_username(username):
+            raise InvalidUsernameError("Unknown username")
+
+    def _require_role(self, role: str) -> None:
+        self._validate_role(role)
+        if not self._store.role_exists(role):
+            raise UnknownRoleError("Unknown role")
+
+    def _validate_role(self, role: str) -> None:
+        if not is_role_valid(role):
+            raise InvalidRoleError("Invalid role")
+
+    def _validate_permission(self, permission: str) -> None:
+        if not is_permission_valid(permission):
+            raise InvalidPermissionError("Invalid permission")
+        if not self._store.permission_exists(permission):
+            raise UnknownPermissionError("Unknown permission")
