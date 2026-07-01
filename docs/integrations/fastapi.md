@@ -29,6 +29,12 @@ You can also install it through the core package extra:
 pip install "userharbor[fastapi]"
 ```
 
+Or install all official adapters together:
+
+```bash
+pip install "userharbor[all]"
+```
+
 The package depends on `userharbor` and FastAPI.
 
 Install storage and email adapters separately. For example:
@@ -116,6 +122,10 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 
 With that prefix, the login route is available at `/auth/login`, the current
 user route at `/auth/me`, and so on.
+
+The routes are also visible in FastAPI's generated Swagger UI:
+
+![UserHarbor FastAPI routes in Swagger UI](../assets/fastapi-swagger.png)
 
 ## Authentication
 
@@ -229,13 +239,15 @@ A typical FastAPI application can combine the official SQLAlchemy, SMTP, and
 FastAPI integrations:
 
 ```python
+import os
+
 from fastapi import FastAPI
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from userharbor import UserHarbor
 from userharbor_fastapi import UserHarborFastAPI
-from userharbor_sqlalchemy import SQLAlchemyUserStore
 from userharbor_smtp import SMTPEmailSender
+from userharbor_sqlalchemy import SQLAlchemyUserStore
 
 
 engine = create_engine("sqlite:///users.db")
@@ -245,11 +257,11 @@ store = SQLAlchemyUserStore(SessionLocal)
 store.metadata.create_all(engine)
 
 email_sender = SMTPEmailSender(
-    host="smtp.example.com",
-    port=587,
-    username="smtp-user",
-    password="smtp-password",
-    from_email="noreply@example.com",
+    host=os.getenv("HOST", "smtp.example.com"),
+    port=int(os.getenv("PORT", 587)),
+    username=os.getenv("USERNAME"),
+    password=os.getenv("PASSWORD"),
+    from_email=os.getenv("USERNAME", ""),
 )
 
 harbor = UserHarbor(
@@ -262,6 +274,12 @@ auth = UserHarborFastAPI(harbor)
 
 app = FastAPI()
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 
 In production applications, use your normal configuration system for secrets,

@@ -14,6 +14,10 @@ nav = [
   { "Token expiration" = "token-expiration.md" },
   { "Roles and permissions" = "roles-and-permissions.md" },
   { "Design principles" = "design-principles.md" },
+  { "Tutorials" = [
+    "tutorials/index.md",
+    { "FastAPI Authentication" = "tutorials/fastapi-authentication.md" },
+  ] },
   { "Integrations" = [
     "integrations/index.md",
     { "SQLAlchemy" = "integrations/sqlalchemy.md" },

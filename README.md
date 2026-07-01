@@ -51,6 +51,12 @@ adapters:
 pip install "userharbor[sqlalchemy,smtp,fastapi]"
 ```
 
+Or install all official integrations at once:
+
+```bash
+pip install "userharbor[all]"
+```
+
 The official adapters are documented in the
 [integrations documentation](https://userharbor.github.io/userharbor/integrations/):
 
