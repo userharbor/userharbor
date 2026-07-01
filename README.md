@@ -44,10 +44,11 @@ Install the core package if you want to provide your own `UserStore` and
 pip install userharbor
 ```
 
-Install the core package with the official SQLAlchemy and SMTP adapters:
+Install the core package with the official SQLAlchemy, SMTP, and FastAPI
+adapters:
 
 ```bash
-pip install "userharbor[sqlalchemy,smtp]"
+pip install "userharbor[sqlalchemy,smtp,fastapi]"
 ```
 
 The official adapters are documented in the
@@ -55,6 +56,7 @@ The official adapters are documented in the
 
 * [`userharbor-sqlalchemy`](https://github.com/userharbor/userharbor-sqlalchemy)
 * [`userharbor-smtp`](https://github.com/userharbor/userharbor-smtp)
+* [`userharbor-fastapi`](https://github.com/userharbor/userharbor-fastapi)
 
 ## Quick example
 
@@ -221,8 +223,8 @@ Official integrations:
   provides a SQLAlchemy-based `UserStore`
 * [`userharbor-smtp`](https://github.com/userharbor/userharbor-smtp) provides an
   SMTP-based `EmailSender`
-* [`userharbor-fastapi`](https://github.com/userharbor/userharbor-fastapi) is in
-  preparation
+* [`userharbor-fastapi`](https://github.com/userharbor/userharbor-fastapi)
+  provides FastAPI routes and dependency helpers
 
 See the [integrations documentation](https://userharbor.github.io/userharbor/integrations/)
 for detailed setup instructions.
