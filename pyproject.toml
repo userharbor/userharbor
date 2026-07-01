@@ -40,6 +40,10 @@ Repository = "https://github.com/userharbor/userharbor"
 all = [
   "userharbor-sqlalchemy>=0.4.0",
   "userharbor-smtp>=0.2.0",
+  "userharbor-fastapi>=0.1.0",
+]
+fastapi = [
+  "userharbor-fastapi>=0.1.0",
 ]
 smtp = [
   "userharbor-smtp>=0.2.0",
