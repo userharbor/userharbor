@@ -164,6 +164,60 @@ harbor.delete_account(
 )
 ```
 
+## Full FastAPI example with official integrations
+
+Install all official integrations:
+
+```bash
+pip install "userharbor[all]"
+```
+
+Then create a FastAPI application with SQLAlchemy storage, SMTP email delivery,
+and the FastAPI router adapter:
+
+```python
+import os
+
+from fastapi import FastAPI
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from userharbor import UserHarbor
+from userharbor_fastapi import UserHarborFastAPI
+from userharbor_smtp import SMTPEmailSender
+from userharbor_sqlalchemy import SQLAlchemyUserStore
+
+engine = create_engine("sqlite:///users.db")
+SessionLocal = sessionmaker(bind=engine)
+
+store = SQLAlchemyUserStore(SessionLocal)
+store.metadata.create_all(engine)
+
+email_sender = SMTPEmailSender(
+    host=os.getenv("HOST", "smtp.example.com"),
+    port=int(os.getenv("PORT", 587)),
+    username=os.getenv("USERNAME"),
+    password=os.getenv("PASSWORD"),
+    from_email=os.getenv("USERNAME", ""),
+)
+
+harbor = UserHarbor(
+    secret_key="your-secret-key",
+    store=store,
+    email_sender=email_sender,
+)
+
+auth = UserHarborFastAPI(harbor)
+
+app = FastAPI()
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
 <!-- --8<-- [end:intro] -->
 
 ## Documentation
