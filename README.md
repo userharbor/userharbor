@@ -32,6 +32,10 @@ Its goal is to provide a simple, stable, and framework-independent interface for
 UserHarbor is not a web framework. It does not provide routers, views, or HTTP endpoints.
 Instead, it exposes a simple domain-level API that can be integrated with FastAPI, Flask, Django, Litestar, CLI applications, or any other environment.
 
+> ⭐ If you find UserHarbor useful, consider
+> [starring it on GitHub](https://github.com/userharbor/userharbor).
+> It helps more Python developers discover the project.
+
 ## Installation
 
 Install the core package if you want to provide your own `UserStore` and
