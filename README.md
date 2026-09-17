@@ -33,9 +33,11 @@ UserHarbor is not a web framework. It does not provide routers, views, or HTTP e
 Instead, it exposes a simple domain-level API that can be integrated with FastAPI, Flask, Django, Litestar, CLI applications, or any other environment.
 
 <p align="center">
-  <a href="https://github.com/userharbor/userharbor">
-    <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/star-userharbor.gif#gh-dark-mode-only" alt="Like UserHarbor? Give it a star." width="660">
-    <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/star-userharbor-light.gif#gh-light-mode-only" alt="Like UserHarbor? Give it a star." width="660">
+  <a href="https://github.com/userharbor/userharbor#gh-dark-mode-only">
+    <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/star-userharbor.gif#gh-dark-mode-only" alt="Like UserHarbor? Give it a star.">
+  </a>
+  <a href="https://github.com/userharbor/userharbor#gh-light-mode-only">
+    <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/star-userharbor-light.gif#gh-light-mode-only" alt="Like UserHarbor? Give it a star.">
   </a>
 </p>
 
