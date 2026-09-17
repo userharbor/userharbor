@@ -32,14 +32,19 @@ Its goal is to provide a simple, stable, and framework-independent interface for
 UserHarbor is not a web framework. It does not provide routers, views, or HTTP endpoints.
 Instead, it exposes a simple domain-level API that can be integrated with FastAPI, Flask, Django, Litestar, CLI applications, or any other environment.
 
+<!-- --8<-- [end:intro] -->
+
 <p align="center">
-  <a href="https://github.com/userharbor/userharbor#gh-dark-mode-only">
-    <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/star-userharbor.gif#gh-dark-mode-only" alt="Like UserHarbor? Give it a star.">
-  </a>
-  <a href="https://github.com/userharbor/userharbor#gh-light-mode-only">
-    <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/star-userharbor-light.gif#gh-light-mode-only" alt="Like UserHarbor? Give it a star.">
+  <a href="https://github.com/userharbor/userharbor">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/userharbor/userharbor/raw/master/docs/assets/star-userharbor.gif">
+      <source media="(prefers-color-scheme: light)" srcset="https://github.com/userharbor/userharbor/raw/master/docs/assets/star-userharbor-light.gif">
+      <img src="https://github.com/userharbor/userharbor/raw/master/docs/assets/star-userharbor.gif" alt="Like UserHarbor? Give it a star.">
+    </picture>
   </a>
 </p>
+
+<!-- --8<-- [start:getting-started] -->
 
 ## Installation
 
@@ -224,7 +229,7 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 
-<!-- --8<-- [end:intro] -->
+<!-- --8<-- [end:getting-started] -->
 
 ## Documentation
 
