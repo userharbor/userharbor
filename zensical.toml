@@ -2,7 +2,7 @@
 site_name = "UserHarbor"
 site_description = "Framework agnostic user management system for Python applications."
 site_author = "SpaceShaman"
-site_url = "https://userharbor.github.io/userharbor"
+site_url = "https://userharbor.github.io"
 repo_url = "https://github.com/userharbor/userharbor"
 edit_uri = "edit/master/docs/"
 copyright = """
@@ -314,9 +314,7 @@ pygments_lang_class = true
 [project.markdown_extensions.pymdownx.smartsymbols]
 
 [project.markdown_extensions.pymdownx.superfences]
-custom_fences = [
-  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" }
-]
+custom_fences = [{ name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" }]
 
 [project.markdown_extensions.pymdownx.tabbed]
 alternate_style = true

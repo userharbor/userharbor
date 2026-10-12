@@ -1,28 +1,35 @@
 name: Documentation
+
 on:
   push:
     branches:
       - master
+
 permissions:
   contents: read
-  pages: write
-  id-token: write
+
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/configure-pages@v6
       - uses: actions/checkout@v6
+
       - uses: actions/setup-python@v6
         with:
-          python-version: 3.x
-      - run: pip install zensical
-      - run: zensical build --clean
-      - uses: actions/upload-pages-artifact@v5
+          python-version: "3.x"
+
+      - name: Install Zensical
+        run: pip install zensical
+
+      - name: Build documentation
+        run: zensical build --clean
+
+      - name: Deploy documentation
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: site
-      - uses: actions/deploy-pages@v5
-        id: deployment
+          deploy_key: ${{ secrets.PAGES_DEPLOY_KEY }}
+          external_repository: userharbor/userharbor.github.io
+          publish_branch: gh-pages
+          publish_dir: ./site
+          force_orphan: true
