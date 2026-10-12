@@ -13,7 +13,7 @@
 [![Linting: Ruff](https://img.shields.io/badge/linting-Ruff-black?logo=ruff&logoColor=black)](https://github.com/astral-sh/ruff)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Pytest](https://img.shields.io/badge/testing-Pytest-red?logo=pytest&logoColor=red)](https://docs.pytest.org/)
-[![Zensical](https://img.shields.io/badge/docs-Zensical-yellow?logo=MaterialForMkDocs&logoColor=yellow)](https://userharbor.github.io/userharbor/)
+[![Zensical](https://img.shields.io/badge/docs-Zensical-yellow?logo=MaterialForMkDocs&logoColor=yellow)](https://userharbor.github.io/)
 
 **UserHarbor** is a framework-agnostic Python library for user account management.
 
@@ -69,7 +69,7 @@ pip install "userharbor[all]"
 ```
 
 The official adapters are documented in the
-[integrations documentation](https://userharbor.github.io/userharbor/integrations/):
+[integrations documentation](https://userharbor.github.io/integrations/):
 
 * [`userharbor-sqlalchemy`](https://github.com/userharbor/userharbor-sqlalchemy)
 * [`userharbor-smtp`](https://github.com/userharbor/userharbor-smtp)
@@ -234,16 +234,16 @@ if __name__ == "__main__":
 ## Documentation
 
 The full documentation is available at
-[userharbor.github.io/userharbor](https://userharbor.github.io/userharbor/).
+[userharbor.github.io](https://userharbor.github.io/).
 
 Useful pages:
 
-* [Architecture](https://userharbor.github.io/userharbor/architecture/)
-* [Validation](https://userharbor.github.io/userharbor/validation/)
-* [Roles and permissions](https://userharbor.github.io/userharbor/roles-and-permissions/)
-* [Design principles](https://userharbor.github.io/userharbor/design-principles/)
-* [Integrations](https://userharbor.github.io/userharbor/integrations/)
-* [Contributing](https://userharbor.github.io/userharbor/Development/contributing/)
+* [Architecture](https://userharbor.github.io/architecture/)
+* [Validation](https://userharbor.github.io/validation/)
+* [Roles and permissions](https://userharbor.github.io/roles-and-permissions/)
+* [Design principles](https://userharbor.github.io/design-principles/)
+* [Integrations](https://userharbor.github.io/integrations/)
+* [Contributing](https://userharbor.github.io/Development/contributing/)
 
 ## Architecture
 
@@ -298,7 +298,7 @@ Official integrations:
 * [`userharbor-fastapi`](https://github.com/userharbor/userharbor-fastapi)
   provides FastAPI routes and dependency helpers
 
-See the [integrations documentation](https://userharbor.github.io/userharbor/integrations/)
+See the [integrations documentation](https://userharbor.github.io/integrations/)
 for detailed setup instructions.
 
 <!-- --8<-- [end:integrations] -->
@@ -409,7 +409,7 @@ The most welcome areas of contribution are:
 * framework integrations as separate packages
 
 Before starting work on a storage, email, or framework integration, read the
-[integrations documentation](https://userharbor.github.io/userharbor/integrations/)
+[integrations documentation](https://userharbor.github.io/integrations/)
 and review the official adapters:
 
 * [`userharbor-sqlalchemy`](https://github.com/userharbor/userharbor-sqlalchemy)
