@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -1059,8 +1059,8 @@ requires-dist = [
     { name = "pwdlib", extras = ["argon2"], specifier = ">=0.3.0" },
     { name = "userharbor-fastapi", marker = "extra == 'all'", specifier = ">=0.1.0" },
     { name = "userharbor-fastapi", marker = "extra == 'fastapi'", specifier = ">=0.1.0" },
-    { name = "userharbor-smtp", marker = "extra == 'all'", specifier = ">=0.3.0" },
-    { name = "userharbor-smtp", marker = "extra == 'smtp'", specifier = ">=0.3.0" },
+    { name = "userharbor-smtp", marker = "extra == 'all'", specifier = ">=0.4.0" },
+    { name = "userharbor-smtp", marker = "extra == 'smtp'", specifier = ">=0.4.0" },
     { name = "userharbor-sqlalchemy", marker = "extra == 'all'", specifier = ">=0.7.0" },
     { name = "userharbor-sqlalchemy", marker = "extra == 'sqlalchemy'", specifier = ">=0.7.0" },
 ]
@@ -1088,15 +1088,15 @@ wheels = [
 
 [[package]]
 name = "userharbor-smtp"
-version = "0.3.0"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jinja2" },
     { name = "userharbor" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d1/8a/9a5ce43fe049511c2198c22eba99a5d21bfcf7c72f4105f4ae305af30874/userharbor_smtp-0.3.0.tar.gz", hash = "sha256:7b0c43d321c0d11bf7c7fe778cdad606cef87c9889c2560b0640a242a2203a4f", size = 4050, upload-time = "2026-09-07T14:10:23.864Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/55/1b/003fd943de44fd58e9f7471f96299704184636036ab2d6bbca0940e078c6/userharbor_smtp-0.4.0.tar.gz", hash = "sha256:3b53a7e6873768891dc2b63a1abbb2053b7963746553470d43fa97a8b3823216", size = 4758, upload-time = "2026-10-29T14:24:01.63Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/b0/635dcba0ea0b558f5c9fab0eefd0223a2d19a5231a99d1e79b509c43e30d/userharbor_smtp-0.3.0-py3-none-any.whl", hash = "sha256:944335600b49235fbfc146d79f9608b7f7ff6307d3a02ea25b9c0233803e1855", size = 6391, upload-time = "2026-09-07T14:10:22.953Z" },
+    { url = "https://files.pythonhosted.org/packages/3d/a8/08fe8d8dcedc83646a6150eedacbae089a636eda6b4efc517dfbe298f5dc/userharbor_smtp-0.4.0-py3-none-any.whl", hash = "sha256:59d4a5cd808fc1761c599159db2c6d926556a3131f96fb11731dc9b3c2176040", size = 6558, upload-time = "2026-10-29T14:24:00.765Z" },
 ]
 
 [[package]]
@@ -1131,7 +1131,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/66/09/b9ed4bec7dd871474b8b9c932828e9fa058f4d48e287fb8c773ccb1f638a/zensical-0.0.59-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:2a39a413fb38f3cc1572c49e8196e30537b75b53fe9d93180d419db5c8db0e68", size = 14169206, upload-time = "2026-09-03T18:40:51.289Z" },
     { url = "https://files.pythonhosted.org/packages/06/3b/a7ab8573d40e780dfbc316c24191170f898e4d7d158d06e19465260c044a/zensical-0.0.59-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:b733edf61722a71d184c3899f035390b27915773fc77599987da934dd87fb76b", size = 13916290, upload-time = "2026-09-03T18:40:54.146Z" },
     { url = "https://files.pythonhosted.org/packages/e4/e8/92c5a80fd3701253660f5c2df8a938c6e6f1fef2218df9830b9d596ef237/zensical-0.0.59-cp310-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:973322d6cba380dae7acbefce84b74f67f8610435ba97c3557f5f25b6e49ed40", size = 14188906, upload-time = "2026-09-03T18:40:56.484Z" },
-    { url = "https://files.pythonhosted.org/packages/5d/16/f898fa52c525f4241fd7709638b10e185b2bca2bc6e34f5dd5741cbe7b8e/zensical-0.0.59-cp310-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:ef84401d8ad34835b5f7d31950f549758fa610d65f20a0cff8d5d71343112644", size = 14211088, upload-time = "2026-09-03T18:40:58.754Z" },
     { url = "https://files.pythonhosted.org/packages/09/50/084f74d4b98d553c566d484bb68e2bd472484027329e4f32e7334d0848ee/zensical-0.0.59-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0331651ffde09bb48904b428de3efa009290434760dbd5ec69b50c05a682a59c", size = 14466906, upload-time = "2026-09-03T18:41:01.305Z" },
     { url = "https://files.pythonhosted.org/packages/c2/bf/3472a57f8c816656fe5f8dde9fae1f5380e97ca5c2bda0b37614f61f5d62/zensical-0.0.59-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:f16ec02bb8582ccdf631db2bedb0a0d19901b6f3f22d9fc8aad97ea61d547746", size = 14363960, upload-time = "2026-09-03T18:41:03.961Z" },
     { url = "https://files.pythonhosted.org/packages/83/f2/7193e2ae24636d63cc4e9e261acabacbc56ea8e48201b90cb737d9c56147/zensical-0.0.59-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:6d61b8db3e198f8b735186be029842ee829be66ca29b6797084948b0eec1c2cb", size = 14695910, upload-time = "2026-09-03T18:41:06.122Z" },
