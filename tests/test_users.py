@@ -7,6 +7,33 @@ from userharbor import UserHarbor
 
 
 @pytest.mark.parametrize("verified", [False, True])
+def test_users_get_by_email_returns_user(userharbor, register_user, verified) -> None:
+    registered_user = register_user()
+    if verified:
+        userharbor.verify_email(registered_user.verification_token)
+
+    user = userharbor.users.get_by_email(registered_user.email)
+
+    assert user is not None
+    assert user.username == registered_user.username
+    assert user.email == registered_user.email
+    assert user.verified is verified
+
+
+def test_users_get_by_email_returns_none_for_missing_user(userharbor) -> None:
+    assert userharbor.users.get_by_email("missing@example.com") is None
+
+
+def test_users_get_by_email_normalizes_email(userharbor, register_user) -> None:
+    register_user(email="Alice@Example.com")
+
+    user = userharbor.users.get_by_email("ALICE@EXAMPLE.COM")
+
+    assert user is not None
+    assert user.email == "alice@example.com"
+
+
+@pytest.mark.parametrize("verified", [False, True])
 def test_users_get_by_username_returns_user(
     userharbor, register_user, verified
 ) -> None:
