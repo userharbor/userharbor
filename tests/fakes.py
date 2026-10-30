@@ -6,6 +6,7 @@ from datetime import datetime
 from userharbor.interfaces import (
     CreateUserRequest,
     EmailSender,
+    UserList,
     UserStore,
     UserToken,
 )
@@ -184,6 +185,37 @@ class InMemoryUserStore(UserStore[TestUser]):
                     verified=stored_user.verified,
                 )
         return None
+
+    def list_users(
+        self,
+        *,
+        limit: int = 50,
+        offset: int = 0,
+        order: str = "username",
+        query: str | None = None,
+    ) -> UserList[TestUser]:
+        query = (query or "").strip()
+        users = [
+            user
+            for user in self.users.values()
+            if query.casefold() in user.username.casefold()
+            or query.lower() in user.email.lower()
+        ]
+        field = order.removeprefix("-")
+        users.sort(key=lambda user: user.username.casefold())
+        users.sort(
+            key=lambda user: (
+                user.username.casefold()
+                if field == "username"
+                else getattr(user, field)
+            ),
+            reverse=order.startswith("-"),
+        )
+        items = [
+            TestUser(user.username, user.email, user.verified)
+            for user in users[offset : offset + limit]
+        ]
+        return UserList(items=items, total=len(users))
 
     def remove_session(self, token_hash: str) -> None:
         session = self.sessions.pop(token_hash, None)

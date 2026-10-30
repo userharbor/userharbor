@@ -12,6 +12,7 @@ from .permissions import *
 from .roles import *
 from .sessions import *
 from .transactions import *
+from .user_listing import *
 from .users import *
 
 __all__ = [name for name in globals() if name.startswith("test_")]

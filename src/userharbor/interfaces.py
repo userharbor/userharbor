@@ -1,7 +1,7 @@
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Protocol, TypeVar
+from typing import Generic, Protocol, TypeVar
 
 
 @dataclass
@@ -29,6 +29,12 @@ class UserLike(Protocol):
 UserT = TypeVar("UserT", bound=UserLike)
 
 
+@dataclass
+class UserList(Generic[UserT]):
+    items: list[UserT]
+    total: int
+
+
 class UserAccountStore(Protocol[UserT]):
     def transaction(self) -> AbstractContextManager[None]: ...
 
@@ -37,6 +43,14 @@ class UserAccountStore(Protocol[UserT]):
     def delete_user(self, username: str) -> None: ...
     def get_user_by_username(self, username: str) -> UserT | None: ...
     def get_user_by_email(self, email: str) -> UserT | None: ...
+    def list_users(
+        self,
+        *,
+        limit: int = 50,
+        offset: int = 0,
+        order: str = "username",
+        query: str | None = None,
+    ) -> UserList[UserT]: ...
 
     def get_password_hash(self, username: str) -> str: ...
     def set_password_hash(self, username: str, password_hash: str) -> None: ...

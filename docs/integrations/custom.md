@@ -66,7 +66,7 @@ from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime
 
-from userharbor.interfaces import CreateUserRequest, UserStore, UserToken
+from userharbor.interfaces import CreateUserRequest, UserList, UserStore, UserToken
 
 
 @dataclass
@@ -93,6 +93,16 @@ class MyUserStore(UserStore[MyUser]):
         ...
 
     def get_user_by_email(self, email: str) -> MyUser | None:
+        ...
+
+    def list_users(
+        self,
+        *,
+        limit: int = 50,
+        offset: int = 0,
+        order: str = "username",
+        query: str | None = None,
+    ) -> UserList[MyUser]:
         ...
 
     def get_password_hash(self, username: str) -> str:
@@ -234,6 +244,16 @@ only provide methods with matching signatures. In particular:
 * deleting a missing user, token, session, role, or permission is a no-op
 * refreshing a missing session and marking a missing user as verified are no-ops
 * reading a missing user or token returns `None`
+* `list_users()` returns a `UserList` with public user `items` and a `total`
+  counting all matches before pagination, including when the requested page is empty
+* listing searches username or email for the literal query substring without
+  case sensitivity; whitespace around the query is ignored, and an empty query
+  lists all users
+* listing sorts by the named storage field, with an optional `-` prefix for
+  descending order; username ordering uses `casefold()`, and equal sort values
+  are ordered by the casefolded username ascending
+* listing applies ordering and filtering before `offset` and `limit`; unknown
+  order fields raise an error rather than falling back to a default
 * reading roles or effective permissions for a missing user returns an empty set
 * reading or updating a password hash for a missing user raises `KeyError`
 * granting or revoking the same relationship more than once is idempotent
@@ -288,8 +308,9 @@ def user_store():
 
 The fixture must provide a clean store for every test and release any database
 connections or other resources afterwards. The shared suite verifies users,
-password hashes, verification and reset tokens, sessions, roles, permissions,
-assignments, and transaction behavior through the public `UserStore` interface.
+password hashes, paginated user listings, verification and reset tokens,
+sessions, roles, permissions, assignments, and transaction behavior through the
+public `UserStore` interface.
 
 Keep backend-specific tests in the integration repository. Examples include
 database schema and migration tests, provider-specific errors, custom model

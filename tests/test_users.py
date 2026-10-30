@@ -6,6 +6,27 @@ from fakes import InMemoryUserStore
 from userharbor import UserHarbor
 
 
+def test_users_list_returns_paginated_search_results(userharbor, register_user) -> None:
+    register_user(username="alice", email="alice@example.com")
+    register_user(username="bob", email="bob@example.com")
+    register_user(username="carol", email="carol@other.com")
+
+    page = userharbor.users.list(
+        limit=1, offset=1, order="-username", query=" EXAMPLE "
+    )
+
+    assert [user.username for user in page.items] == ["alice"]
+    assert page.total == 2
+
+
+@pytest.mark.parametrize(
+    "kwargs", [{"limit": 0}, {"limit": -1}, {"limit": 501}, {"offset": -1}]
+)
+def test_users_list_rejects_invalid_pagination(userharbor, kwargs) -> None:
+    with pytest.raises(ValueError):
+        userharbor.users.list(**kwargs)
+
+
 @pytest.mark.parametrize("verified", [False, True])
 def test_users_get_by_email_returns_user(userharbor, register_user, verified) -> None:
     registered_user = register_user()

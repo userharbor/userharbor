@@ -51,6 +51,7 @@ userharbor/testing/user_store_contract/
     __init__.py
     _support.py
     users.py
+    user_listing.py
     email_verifications.py
     password_resets.py
     sessions.py

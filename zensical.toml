@@ -13,6 +13,7 @@ nav = [
   { "Architecture" = "architecture.md" },
   { "Validation" = "validation.md" },
   { "Token expiration" = "token-expiration.md" },
+  { "User manager" = "user-manager.md" },
   { "Roles and permissions" = "roles-and-permissions.md" },
   { "Design principles" = "design-principles.md" },
   { "Tutorials" = [
