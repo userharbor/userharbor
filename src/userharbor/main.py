@@ -26,6 +26,7 @@ from .security import (
     hash_token,
     verify_password,
 )
+from .users import UserManager
 from .utils import as_aware_utc, utcnow
 from .validations import (
     default_password_validator,
@@ -58,6 +59,7 @@ class UserHarbor(Generic[UserT]):
         self._session_refresh_threshold = session_refresh_threshold
         self._username_validator = username_validator
         self._password_validator = password_validator
+        self.users = UserManager(store)
         self.roles = RoleManager(store)
         self.permissions = PermissionManager(store)
 

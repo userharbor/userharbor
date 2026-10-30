@@ -128,6 +128,11 @@ if harbor.verify_session(session_token):
 current_user = harbor.get_current_user(session_token)
 print(current_user.username)
 
+# Look up any user by username without a session
+user = harbor.users.get_by_username("jane")
+if user is not None:
+    print(user.email)
+
 # Create roles and permissions
 harbor.roles.create("admin")
 harbor.permissions.create("users.delete")
