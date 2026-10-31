@@ -6,9 +6,10 @@ icon: lucide/list-checks
 ---
 # Validation
 
-UserHarbor validates usernames and passwords before creating or updating an
-account. It provides default validators and allows each `UserHarbor` instance to
-replace them with application-specific functions.
+UserHarbor validates usernames during registration and passwords during
+registration, password changes, and password resets. It provides default
+validators and allows each `UserHarbor` instance to replace them with
+application-specific functions.
 
 Validators receive a string and return `True` when the value is valid or
 `False` when it should be rejected.

@@ -216,10 +216,10 @@ A `UserStore` is responsible for:
 The store should never store raw tokens. UserHarbor passes token hashes to the
 store and keeps raw token handling in the core flow.
 
-The user type returned by `get_user_by_username()` and `get_user_by_email()` can
-be any object that provides `username`, `email`, and `verified`. Parameterize
-`UserStore` with that concrete type so `UserHarbor.get_current_user()` and
-`harbor.users.get_by_username()` preserve it in type checkers.
+User lookups and list items can return any public user type that provides
+`username`, `email`, and `verified`. Parameterize `UserStore` with that concrete
+type so `UserHarbor.get_current_user()` and `harbor.users` preserve it in type
+checkers. See [User Manager](../user-manager.md) for usage examples.
 
 ### Contract semantics
 

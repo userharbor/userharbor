@@ -6,16 +6,12 @@ icon: lucide/users
 ---
 # User Manager
 
-`harbor.users` provides user lookup, search, sorting, and pagination through a
-framework-independent API. You can use it to build a user management panel,
-support dashboard, or internal CLI tool.
+`harbor.users` provides user lookup, search, sorting, and pagination through
+`UserManager`. Use it to build application-specific tools such as a user
+management panel, support dashboard, or internal CLI.
 
-The manager gives you the building blocks while leaving the concrete
-implementation to your application. Your business requirements determine the
-interface, who can access it, which user data is visible, and which actions are
-available. You can combine these reads with existing account and
-[role and permission operations](roles-and-permissions.md) to create the
-workflow you need.
+Your application decides how to expose these operations, who may use them,
+and which user data is visible.
 
 The examples below use an already configured `UserHarbor` instance named
 `harbor`.
@@ -36,6 +32,9 @@ Both methods return `UserT | None`: the public user object, or `None` when the
 account does not exist. Username lookup is case-insensitive and preserves the
 stored username casing. Email lookup normalizes the supplied address to
 lowercase, as registration does.
+
+Use these methods when you know the account's username or email. To identify
+the user of an authenticated request, use `harbor.get_current_user(session_token)`.
 
 ## Listing and searching users
 
@@ -86,7 +85,8 @@ page_count = (users.total + page_size - 1) // page_size
 ### Sorting
 
 `order` defaults to `"username"`. Pass a storage field name for ascending order
-or prefix it with `-` for descending order:
+or prefix it with `-` for descending order. Both the SQLAlchemy and in-memory
+adapters support `username`, `email`, and `verified`:
 
 ```python
 users = harbor.users.list(order="email")
@@ -126,9 +126,7 @@ def list_users_for_admin(session_token, *, query=None, limit=25, offset=0):
 ```
 
 Your UI can display `items` in a table and use `total` for pagination. The same
-domain operation can serve a web view, an API route, or an internal tool. Choose
-the presentation, access policy, and available management actions to fit your
-business case.
+operation can serve a web view, an API route, or an internal tool.
 
 ## Custom user types
 

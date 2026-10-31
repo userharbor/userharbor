@@ -302,7 +302,8 @@ store = SQLAlchemyUserStore(
 )
 ```
 
-`user_mapper` is used by `get_user_by_username()` and `get_user_by_email()`.
+`user_mapper` is used by `get_user_by_username()`, `get_user_by_email()`,
+and every item returned by `list_users()`.
 Token methods continue to return `UserToken` values.
 
 ## Roles and permissions
