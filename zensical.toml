@@ -19,6 +19,7 @@ nav = [
   { "Tutorials" = [
     "tutorials/index.md",
     { "FastAPI Authentication" = "tutorials/fastapi-authentication.md" },
+    { "FastHTML Application" = "tutorials/fasthtml-application.md" },
   ] },
   { "Integrations" = [
     "integrations/index.md",
